@@ -61,7 +61,7 @@ const Sidebar = () => {
         </button>
       </div>
 
-      <div className="mt-6 flex-1 overflow-y-auto pr-2">
+      <div className="scrollbar-hide mt-6 flex-1 overflow-y-auto pr-2">
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-semibold text-zinc-500 uppercase">
             Your conversations
