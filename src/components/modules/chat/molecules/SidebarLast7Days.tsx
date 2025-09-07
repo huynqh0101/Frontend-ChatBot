@@ -1,0 +1,18 @@
+import ConversationItem from './ConversationItem'
+
+export default function SidebarLast7Days({ items }: { items: string[] }) {
+  return (
+    <>
+      <h2 className="mt-8 text-xs font-semibold text-zinc-500 uppercase">
+        Last 7 Days
+      </h2>
+      <nav className="mt-2 grid gap-1">
+        <ul>
+          {items.map((item, index) => (
+            <ConversationItem key={index} text={item} />
+          ))}
+        </ul>
+      </nav>
+    </>
+  )
+}

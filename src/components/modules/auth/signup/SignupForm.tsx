@@ -3,6 +3,8 @@ import React from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { register } from '@/services/authService'
+import { useRouter } from 'next/navigation'
 
 const SocialButton = ({
   icon,
@@ -18,8 +20,47 @@ const SocialButton = ({
 )
 
 export function SignupForm() {
+  const router = useRouter()
   const [showPassword, setShowPassword] = React.useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
+  const [loading, setLoading] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+  const [success, setSuccess] = React.useState(false)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setError(null)
+    setSuccess(false)
+    setLoading(true)
+
+    const form = e.currentTarget
+    const formData = new FormData(form)
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    const passwordconf = formData.get('confirm-password') as string
+
+    const name = email.split('@')[0]
+
+    if (password !== passwordconf) {
+      setError('Passwords do not match')
+      setLoading(false)
+      return
+    }
+
+    try {
+      await register({ name, email, password, passwordconf })
+      setSuccess(true)
+      router.push('/')
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('An unexpected error occurred')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="flex w-full flex-col items-center justify-center bg-white p-8 lg:w-1/2 lg:rounded-r-2xl">
@@ -33,7 +74,7 @@ export function SignupForm() {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6">
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div>
             <label
               htmlFor="email"
@@ -103,6 +144,11 @@ export function SignupForm() {
             </button>
           </div>
 
+          {error && <div className="text-sm text-red-500">{error}</div>}
+          {success && (
+            <div className="text-sm text-green-600">Đăng ký thành công!</div>
+          )}
+
           <p className="text-xs text-gray-500">
             By registering for an account, you are consenting to our{' '}
             <Link
@@ -124,15 +170,16 @@ export function SignupForm() {
           <button
             type="submit"
             className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
+            disabled={loading}
           >
-            Get started free
+            {loading ? 'Đang đăng ký...' : 'Get started free'}
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-600">
           Already have an account?{' '}
           <Link
-            href="/auth/login"
+            href="/login"
             className="font-medium text-blue-600 hover:underline"
           >
             Login

@@ -3,6 +3,8 @@ import React from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { login } from '@/services/authService'
+import { useRouter } from 'next/navigation'
 
 // Component nút social login có thể tái sử dụng
 const SocialButton = ({
@@ -20,6 +22,31 @@ const SocialButton = ({
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = React.useState(false)
+  const [loading, setLoading] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+  const router = useRouter()
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+
+    try {
+      await login({ email, password })
+      router.push('/')
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('An unexpected error occurred')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="flex w-full flex-col items-center justify-center bg-white p-8 lg:w-1/2 lg:rounded-r-2xl">
@@ -33,7 +60,7 @@ export function LoginForm() {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6">
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div>
             <label
               htmlFor="email"
@@ -85,18 +112,21 @@ export function LoginForm() {
             </button>
           </div>
 
+          {error && <div className="text-sm text-red-500">{error}</div>}
+
           <button
             type="submit"
             className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
+            disabled={loading}
           >
-            Login
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-600">
           Don&apos;t have an account?{' '}
           <Link
-            href="/auth/signup"
+            href="/signup"
             className="font-medium text-blue-600 hover:underline"
           >
             Sign up
