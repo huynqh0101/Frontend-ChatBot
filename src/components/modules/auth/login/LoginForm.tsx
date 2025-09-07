@@ -4,6 +4,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
+// Component nút social login có thể tái sử dụng
 const SocialButton = ({
   icon,
   text,
@@ -17,19 +18,18 @@ const SocialButton = ({
   </button>
 )
 
-export function SignupForm() {
+export function LoginForm() {
   const [showPassword, setShowPassword] = React.useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
 
   return (
     <div className="flex w-full flex-col items-center justify-center bg-white p-8 lg:w-1/2 lg:rounded-r-2xl">
       <div className="w-full max-w-sm">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900">
-            Sign up with free trail
+            Login to your account
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Empower your experience, sign up for a free account today.
+            Welcome back! Please enter your details.
           </p>
         </div>
 
@@ -53,17 +53,25 @@ export function SignupForm() {
           </div>
 
           <div className="relative">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password*
-            </label>
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password*
+              </label>
+              <a
+                href="#"
+                className="text-sm font-medium text-blue-600 hover:underline"
+              >
+                Forgot password?
+              </a>
+            </div>
             <input
               id="password"
               name="password"
               type={showPassword ? 'text' : 'password'}
-              autoComplete="new-password"
+              autoComplete="current-password"
               required
               placeholder="Enter password"
               className="mt-1 block w-full rounded-lg border-gray-200 bg-gray-50 px-4 py-3 focus:border-blue-500 focus:ring-blue-500"
@@ -77,65 +85,21 @@ export function SignupForm() {
             </button>
           </div>
 
-          {/* --- INPUT MỚI ĐƯỢC THÊM VÀO ĐÂY --- */}
-          <div className="relative">
-            <label
-              htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Confirm Password*
-            </label>
-            <input
-              id="confirm-password"
-              name="confirm-password"
-              type={showConfirmPassword ? 'text' : 'password'}
-              autoComplete="new-password"
-              required
-              placeholder="Confirm your password"
-              className="mt-1 block w-full rounded-lg border-gray-200 bg-gray-50 px-4 py-3 focus:border-blue-500 focus:ring-blue-500"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute top-9 right-3 text-gray-400"
-            >
-              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-          </div>
-
-          <p className="text-xs text-gray-500">
-            By registering for an account, you are consenting to our{' '}
-            <Link
-              href="#"
-              className="font-medium text-blue-600 hover:underline"
-            >
-              Terms of Service
-            </Link>{' '}
-            and confirming that you have reviewed and accepted the{' '}
-            <Link
-              href="#"
-              className="font-medium text-blue-600 hover:underline"
-            >
-              Global Privacy Statement
-            </Link>
-            .
-          </p>
-
           <button
             type="submit"
             className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
           >
-            Get started free
+            Login
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-600">
-          Already have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link
-            href="/auth/login"
+            href="/auth/signup"
             className="font-medium text-blue-600 hover:underline"
           >
-            Login
+            Sign up
           </Link>
         </div>
 
