@@ -25,5 +25,9 @@ export async function login(payload: ILogin) {
     const error = await res.json()
     throw new Error(error.message || 'Login failed')
   }
-  return res.json()
+  // Trả về object chứa user và token
+  return res.json() as Promise<{
+    user: { id: string; name: string; email: string }
+    token: string
+  }>
 }

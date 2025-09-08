@@ -35,7 +35,10 @@ export function LoginForm() {
     const password = formData.get('password') as string
 
     try {
-      await login({ email, password })
+      const res = await login({ email, password })
+      if (res.token) {
+        localStorage.setItem('token', res.token)
+      }
       router.push('/')
     } catch (err: unknown) {
       if (err instanceof Error) {
