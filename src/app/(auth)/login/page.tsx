@@ -1,5 +1,4 @@
 import React from 'react'
-// Tái sử dụng InfoPanel từ thư mục signup
 import { InfoPanel } from '@/components/modules/auth/login/InfoPanel'
 import { LoginForm } from '@/components/modules/auth/login/LoginForm'
 export default function LoginPage() {

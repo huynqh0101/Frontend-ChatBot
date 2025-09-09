@@ -29,6 +29,7 @@ export default function SidebarConversations({
           {conversations.map((item, index) => (
             <ConversationItem
               key={index}
+              conversationId={item}
               text={item}
               onEdit={(newName) => onEdit(index, newName)}
               onDelete={() => onDelete(index)}

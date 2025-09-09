@@ -3,12 +3,18 @@ import React, { useState, useRef, useEffect } from 'react'
 
 interface ConversationItemProps {
   text: string
+  conversationId: string
+  isSelected?: boolean
+  onClick?: (id: string) => void
   onEdit?: (newName: string) => void
   onDelete?: () => void
 }
 
 export default function ConversationItem({
   text,
+  conversationId,
+  isSelected,
+  onClick,
   onEdit,
   onDelete,
 }: ConversationItemProps) {
@@ -37,8 +43,15 @@ export default function ConversationItem({
     <li className="group relative">
       <a
         href="#"
-        style={{ maxWidth: 260 }}
-        className="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-zinc-600 transition-colors duration-200 group-hover:bg-indigo-50 group-hover:text-indigo-700"
+        onClick={(e) => {
+          e.preventDefault()
+          onClick?.(conversationId)
+        }}
+        className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 transition-colors duration-200 ${
+          isSelected
+            ? 'bg-indigo-100 text-indigo-800'
+            : 'text-zinc-600 hover:bg-indigo-50 hover:text-indigo-700'
+        }`}
       >
         <div className="flex min-w-0 items-center gap-3">
           <MessageSquare className="h-4 w-4 flex-shrink-0" />

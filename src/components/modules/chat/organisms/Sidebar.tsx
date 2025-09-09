@@ -6,7 +6,15 @@ import SidebarFooter from '../molecules/SidebarFooter'
 import SidebarLast7Days from '../molecules/SidebarLast7Days'
 import { fetchConversations, Conversation } from '@/services/chatService'
 
-export function Sidebar() {
+interface SidebarProps {
+  onSelectConversation: (id: string | null) => void
+  selectedConversationId: string | null
+}
+
+export function Sidebar({
+  onSelectConversation,
+  selectedConversationId,
+}: SidebarProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
 
   useEffect(() => {
@@ -18,10 +26,8 @@ export function Sidebar() {
   }, [])
 
   const handleNewChat = () => {
-    setConversations((prev) => [
-      { id: Date.now().toString(), title: `New chat ${prev.length + 1}` },
-      ...prev,
-    ])
+    onSelectConversation('new')
+    // Có thể tạo conversation mới ở đây
   }
 
   const handleEditConversation = (index: number, newName: string) => {
