@@ -120,13 +120,6 @@ export function MainContent2({ conversationId }: MainContent2Props) {
           </button>
         </div>
       </div>
-
-      {/* Upgrade to Pro Banner */}
-      <div className="absolute top-1/2 right-0 -translate-y-1/2 -rotate-90 transform">
-        <button className="rounded-t-lg bg-blue-600 px-6 py-2 font-semibold text-white">
-          Upgrade to Pro
-        </button>
-      </div>
     </main>
   )
 }

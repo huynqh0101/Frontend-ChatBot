@@ -1,5 +1,6 @@
-import { MessageSquare, Trash2, Pencil, Check } from 'lucide-react'
+import { Trash2, Pencil, Check } from 'lucide-react'
 import React, { useState, useRef, useEffect } from 'react'
+import Image from 'next/image'
 
 interface ConversationItemProps {
   text: string
@@ -54,7 +55,13 @@ export default function ConversationItem({
         }`}
       >
         <div className="flex min-w-0 items-center gap-3">
-          <MessageSquare className="h-4 w-4 flex-shrink-0" />
+          <Image
+            src="/asset/icon/message.svg"
+            alt="Message"
+            width={16}
+            height={16}
+            className="flex-shrink-0"
+          />
           {editing ? (
             <input
               ref={inputRef}
