@@ -5,9 +5,13 @@ import PromptCard from '../molecules/PromptCard'
 
 interface MainContentProps {
   onStartNewChat: (firstMessage: string) => void
+  isLoggedIn?: boolean
 }
 
-export function MainContent({ onStartNewChat }: MainContentProps) {
+export function MainContent({
+  onStartNewChat,
+  isLoggedIn = false,
+}: MainContentProps) {
   const [inputValue, setInputValue] = useState('')
 
   const handleSendMessage = () => {
@@ -25,8 +29,38 @@ export function MainContent({ onStartNewChat }: MainContentProps) {
     }
   }
 
+  const handleLogin = () => {
+    // Chuyển đến trang login
+    window.location.href = '/login'
+  }
+
+  const handleSignup = () => {
+    // Chuyển đến trang signup
+    window.location.href = '/signup'
+  }
+
   return (
     <main className="relative flex h-screen flex-col bg-gray-100">
+      {/* Header với nút Login/Signup - chỉ hiện khi chưa đăng nhập */}
+      {!isLoggedIn && (
+        <div className="absolute top-0 right-0 z-10 p-6">
+          <div className="flex gap-3">
+            <button
+              onClick={handleLogin}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              Login
+            </button>
+            <button
+              onClick={handleSignup}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+            >
+              Sign Up
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Main container chứa cả content và input */}
       <div className="flex flex-1 flex-col justify-between p-6 md:p-10">
         {/* Content area */}

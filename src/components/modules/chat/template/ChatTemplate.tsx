@@ -55,7 +55,7 @@ export function ChatTemplate() {
         <Sidebar
           onSelectConversation={setSelectedConversationId}
           selectedConversationId={selectedConversationId}
-          refreshTrigger={refreshConversations} // Truyền trigger để refresh
+          refreshTrigger={refreshConversations} // Truy
         />
       )}
 
@@ -66,7 +66,10 @@ export function ChatTemplate() {
             key={selectedConversationId}
           />
         ) : (
-          <MainContent onStartNewChat={handleStartNewChat} />
+          <MainContent
+            onStartNewChat={handleStartNewChat}
+            isLoggedIn={isLoggedIn}
+          />
         )}
       </div>
     </div>
