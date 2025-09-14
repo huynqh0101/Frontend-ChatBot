@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { Pen, Search, Settings, PanelLeft } from 'lucide-react'
 import SidebarHeader from '../molecules/SidebarHeader'
 import SidebarConversations from '../molecules/SidebarConversations'
 import SidebarFooter from '../molecules/SidebarFooter'
@@ -15,12 +16,16 @@ interface SidebarProps {
   onSelectConversation: (id: string | null) => void
   selectedConversationId: string | null
   refreshTrigger?: number
+  collapsed?: boolean
+  onToggle?: () => void // Thêm prop để toggle
 }
 
 export function Sidebar({
   onSelectConversation,
   selectedConversationId,
   refreshTrigger,
+  collapsed = false,
+  onToggle,
 }: SidebarProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
 
@@ -121,23 +126,69 @@ export function Sidebar({
   ]
 
   return (
-    <aside className="my-3 ml-3 hidden h-[calc(100vh-24px)] w-72 flex-col rounded-2xl border bg-white p-4 shadow-lg lg:flex">
-      <SidebarHeader
-        onNewChat={handleNewChat}
-        onSearchChange={handleSearchChange}
-      />
-      <div className="scrollbar-hide mt-6 flex-1 overflow-y-auto pr-2">
-        <SidebarConversations
-          conversations={conversations}
-          selectedConversationId={selectedConversationId}
-          onEdit={handleEditConversation}
-          onDelete={handleDeleteConversation}
-          onClearAll={handleClearAll}
-          onSelect={handleSelectConversation}
-        />
-        <SidebarLast7Days items={last7Days} />
-      </div>
-      <SidebarFooter />
+    <aside
+      className={`my-3 ml-3 flex h-[calc(100vh-24px)] flex-col border bg-white shadow-lg transition-all duration-300 ${
+        collapsed ? 'w-16 items-center p-2' : 'w-72 rounded-2xl p-4'
+      }`}
+    >
+      {collapsed ? (
+        <div className="flex flex-1 flex-col items-center gap-4">
+          {/* Toggle button khi collapsed */}
+          <button
+            onClick={onToggle}
+            title="Mở sidebar"
+            className="rounded-lg border border-gray-200 bg-gray-50 p-2 transition-colors hover:bg-gray-100"
+          >
+            <PanelLeft className="h-5 w-5 text-gray-700" />
+          </button>
+
+          <button title="New chat" onClick={handleNewChat}>
+            <Pen className="h-6 w-6 text-gray-700" />
+          </button>
+          <button title="Search">
+            <Search className="h-6 w-6 text-gray-700" />
+          </button>
+          <button title="Settings">
+            <Settings className="h-6 w-6 text-gray-700" />
+          </button>
+          <div className="mt-auto mb-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
+              HN
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Toggle button khi expanded - ở góc trên bên phải của sidebar */}
+          <div className="mb-4 flex items-center justify-between">
+            <h1 className="text-lg font-bold text-zinc-800">CHAT A.I+</h1>
+            <button
+              onClick={onToggle}
+              title="Đóng sidebar"
+              className="rounded-lg border border-gray-200 bg-gray-50 p-2 transition-colors hover:bg-gray-100"
+            >
+              <PanelLeft className="h-5 w-5 text-gray-700" />
+            </button>
+          </div>
+
+          <SidebarHeader
+            onNewChat={handleNewChat}
+            onSearchChange={handleSearchChange}
+          />
+          <div className="scrollbar-hide mt-6 flex-1 overflow-y-auto pr-2">
+            <SidebarConversations
+              conversations={conversations}
+              selectedConversationId={selectedConversationId}
+              onEdit={handleEditConversation}
+              onDelete={handleDeleteConversation}
+              onClearAll={handleClearAll}
+              onSelect={handleSelectConversation}
+            />
+            <SidebarLast7Days items={last7Days} />
+          </div>
+          <SidebarFooter />
+        </>
+      )}
     </aside>
   )
 }

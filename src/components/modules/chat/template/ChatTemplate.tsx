@@ -4,6 +4,7 @@ import { Sidebar } from '../organisms/Sidebar'
 import { MainContent } from '../organisms/MainContent'
 import { MainContent2 } from '../organisms/MainContent2'
 import { sendMessage } from '@/services/chatService'
+import { PanelLeft, PanelRight } from 'lucide-react'
 
 export function ChatTemplate() {
   const [selectedConversationId, setSelectedConversationId] = useState<
@@ -11,6 +12,7 @@ export function ChatTemplate() {
   >(null)
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
   const [refreshConversations, setRefreshConversations] = useState<number>(0) // Trigger để refresh sidebar
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -50,16 +52,20 @@ export function ChatTemplate() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="relative flex h-screen bg-gray-100">
+      {/* Sidebar với toggle button bên trong */}
       {isLoggedIn && (
         <Sidebar
           onSelectConversation={setSelectedConversationId}
           selectedConversationId={selectedConversationId}
-          refreshTrigger={refreshConversations} // Truy
+          refreshTrigger={refreshConversations}
+          collapsed={!sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
         />
       )}
 
-      <div className={isLoggedIn ? 'flex-1' : 'w-full'}>
+      {/* Main content - bỏ toggle button ở đây */}
+      <div className="flex-1">
         {selectedConversationId ? (
           <MainContent2
             conversationId={selectedConversationId}

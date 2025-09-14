@@ -55,9 +55,6 @@ export default function SidebarHeader({
   if (isSearchOpen) {
     return (
       <div ref={searchContainerRef}>
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-zinc-800">CHAT A.I+</h1>
-        </div>
         <div className="mt-6 flex w-full items-center gap-3">
           <button
             className="flex flex-shrink-0 items-center justify-center rounded-full bg-[#5561F7] p-3 transition-transform duration-150 hover:scale-[1.02]"
@@ -83,9 +80,6 @@ export default function SidebarHeader({
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-zinc-800">CHAT A.I+</h1>
-      </div>
       <div className="mt-6 flex w-full items-center gap-3">
         <button
           className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#5561F7] py-2.5 text-white transition-all duration-150 hover:scale-[1.02] hover:bg-[#4854e0]"
