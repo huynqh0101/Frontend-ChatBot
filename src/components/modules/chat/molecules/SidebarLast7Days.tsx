@@ -9,7 +9,7 @@ export default function SidebarLast7Days({ items }: { items: string[] }) {
       <nav className="mt-2 grid gap-1">
         <ul>
           {items.map((item, index) => (
-            <ConversationItem key={index} text={item} />
+            <ConversationItem key={index} text={item} conversationId={item} />
           ))}
         </ul>
       </nav>
