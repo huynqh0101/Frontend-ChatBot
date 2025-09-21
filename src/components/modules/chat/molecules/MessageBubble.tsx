@@ -54,6 +54,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             width={32}
             height={32}
             className="h-8 w-8 rounded-full"
+            unoptimized
           />
         </div>
       </div>
@@ -69,6 +70,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           width={32}
           height={32}
           className="h-8 w-8 rounded-full"
+          unoptimized
         />
       </div>
       <div className="max-w-[768px] flex-1">

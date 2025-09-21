@@ -6,6 +6,11 @@ import { MainContent2 } from '../organisms/MainContent2'
 import { sendMessage } from '@/services/chatService'
 import { PanelLeft, PanelRight } from 'lucide-react'
 
+interface Message {
+  role: string
+  content: string
+}
+
 export function ChatTemplate() {
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
@@ -13,6 +18,7 @@ export function ChatTemplate() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
   const [refreshConversations, setRefreshConversations] = useState<number>(0) // Trigger để refresh sidebar
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [initialMessages, setInitialMessages] = useState<Message[]>([])
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -23,22 +29,22 @@ export function ChatTemplate() {
   const handleStartNewChat = async (firstMessage: string) => {
     try {
       const token = localStorage.getItem('token')
-      // Nếu không có token, vẫn cho phép gửi tin nhắn (ví dụ: gọi API public hoặc tạo conversation local)
       if (!token) {
-        // Nếu API yêu cầu token, bạn có thể tạo một conversation tạm thời ở client hoặc gọi API khác
-        // Ví dụ: chỉ log ra hoặc tạo conversation local
-        console.warn('No token found, creating local conversation')
         setSelectedConversationId('local-' + Date.now())
+        setInitialMessages([{ role: 'user', content: firstMessage }])
         return
       }
 
-      // Nếu có token thì gọi API như cũ
       const result = await sendMessage(token, firstMessage, null)
       const conversationId =
-        result.conversationId || result.conversation_id || result.id
+        result.conversation?.id ||
+        result.conversationId ||
+        result.conversation_id ||
+        result.id
 
       if (conversationId) {
         setSelectedConversationId(conversationId)
+        setInitialMessages(result.messages || [])
         setRefreshConversations((prev) => prev + 1)
       } else {
         console.error('No conversation ID in response:', result)
@@ -66,7 +72,7 @@ export function ChatTemplate() {
         {selectedConversationId ? (
           <MainContent2
             conversationId={selectedConversationId}
-            key={selectedConversationId}
+            initialMessages={initialMessages}
           />
         ) : (
           <MainContent

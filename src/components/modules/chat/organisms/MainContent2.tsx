@@ -2,111 +2,88 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Send, Bot, User, Copy, ThumbsUp, ThumbsDown } from 'lucide-react'
 import { MessageBubble, type Message } from '../molecules/MessageBubble'
+import { fetchMessages, sendMessage } from '@/services/chatService'
 
 interface MainContent2Props {
   conversationId: string
+  initialMessages?: any[] // nhận từ API khi tạo mới
 }
 
-// Dữ liệu mẫu cho cuộc hội thoại
-const initialMessages: Message[] = [
-  {
-    sender: 'user',
-    name: 'Andrew Neilson',
-    avatar: 'https://placehold.co/40x40/E8E8E8/424242?text=AN',
-    text: 'Create a chatbot gpt using python language what will be step for that',
-  },
-  {
-    sender: 'bot',
-    name: 'CHAT A.I+',
-    avatar: 'https://placehold.co/40x40/171717/FFFFFF?text=A.I',
-    text: (
-      <>
-        <p className="mb-4">
-          Sure, I can help you get started with creating a chatbot using GPT in
-          Python. Here are the basic steps you&apos;ll need to follow:
-        </p>
-        <ol className="space-y-2 pl-4">
-          <li className="flex">
-            <span className="mr-2 font-semibold text-blue-600">1.</span>
-            <div>
-              <strong>Install the required libraries:</strong> You&apos;ll need
-              to install the transformers library from Hugging Face to use GPT.
-              You can install it using pip.
-            </div>
-          </li>
-          <li className="flex">
-            <span className="mr-2 font-semibold text-blue-600">2.</span>
-            <div>
-              <strong>Load the pre-trained model:</strong> GPT comes in several
-              sizes and versions, so you&apos;ll need to choose the one that
-              fits your needs.
-            </div>
-          </li>
-          <li className="flex">
-            <span className="mr-2 font-semibold text-blue-600">3.</span>
-            <div>
-              <strong>Create a chatbot loop:</strong> You&apos;ll need to create
-              a loop that takes user input, generates a response using the GPT
-              model, and outputs it to the user.
-            </div>
-          </li>
-          <li className="flex">
-            <span className="mr-2 font-semibold text-blue-600">4.</span>
-            <div>
-              <strong>Add some personality to the chatbot:</strong> While GPT
-              can generate text, it doesn&apos;t have any inherent personality
-              or style.
-            </div>
-          </li>
-        </ol>
-        <p className="mt-4 text-gray-600">
-          These are just the basic steps to get started with a GPT chatbot in
-          Python. Good luck with your project! 🚀
-        </p>
-      </>
-    ),
-  },
-]
-
-export function MainContent2({ conversationId }: MainContent2Props) {
-  const [messages, setMessages] = useState<Message[]>(initialMessages)
+export function MainContent2({
+  conversationId,
+  initialMessages = [],
+}: MainContent2Props) {
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  // Map API messages về dạng MessageBubble.Message
+  const mapApiMessages = (msgs: any[]): Message[] =>
+    msgs.map((msg) => ({
+      sender: msg.role === 'user' ? 'user' : 'bot',
+      name: msg.role === 'user' ? 'Andrew Neilson' : 'CHAT A.I+',
+      avatar:
+        msg.role === 'user'
+          ? 'https://placehold.co/40x40/E8E8E8/424242?text=AN'
+          : 'https://placehold.co/40x40/171717/FFFFFF?text=A.I',
+      text: msg.content,
+    }))
 
   useEffect(() => {
-    scrollToBottom()
+    // Nếu có initialMessages (tạo mới), dùng luôn
+    if (initialMessages.length > 0) {
+      setMessages(mapApiMessages(initialMessages))
+    } else {
+      // Nếu chuyển sang conversation cũ, fetch từ API
+      const loadMessages = async () => {
+        const token = localStorage.getItem('token')
+        if (!token) return
+        try {
+          const msgs = await fetchMessages(token, conversationId)
+          setMessages(mapApiMessages(msgs))
+        } catch (err) {
+          setMessages([])
+        }
+      }
+      loadMessages()
+    }
+  }, [conversationId, initialMessages])
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const handleSendMessage = () => {
-    if (inputValue.trim()) {
-      const newUserMessage: Message = {
-        sender: 'user',
-        name: 'Andrew Neilson',
-        avatar: 'https://placehold.co/40x40/E8E8E8/424242?text=AN',
-        text: inputValue,
-      }
-      setMessages((prev) => [...prev, newUserMessage])
-      setInputValue('')
-      setIsTyping(true)
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return
+    const token = localStorage.getItem('token')
+    if (!token) return
 
-      // Simulate bot response
-      setTimeout(() => {
-        const botResponse: Message = {
+    setIsTyping(true)
+    // Gửi tin nhắn lên API
+    const result = await sendMessage(token, inputValue, conversationId)
+    if (result.messages) {
+      setMessages((prev) => [...prev, ...mapApiMessages(result.messages)])
+    } else {
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: 'user',
+          name: 'Andrew Neilson',
+          avatar: 'https://placehold.co/40x40/E8E8E8/424242?text=AN',
+          text: inputValue,
+        },
+        {
           sender: 'bot',
           name: 'CHAT A.I+',
           avatar: 'https://placehold.co/40x40/171717/FFFFFF?text=A.I',
-          text: `I understand you're asking about "${inputValue}". Let me help you with that...`,
-        }
-        setMessages((prev) => [...prev, botResponse])
-        setIsTyping(false)
-      }, 2000)
+          text: result.message || 'AI is thinking...',
+        },
+      ])
     }
+    setInputValue('')
+    setIsTyping(false)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -122,41 +99,8 @@ export function MainContent2({ conversationId }: MainContent2Props) {
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="mx-auto max-w-4xl space-y-6">
           {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {/* Avatar */}
-              {msg.sender === 'bot' && (
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
-                  <Bot className="h-4 w-4 text-white" />
-                </div>
-              )}
-
-              {/* Bubble chat */}
-              <div
-                className={`inline-block px-4 py-2 text-base font-normal shadow ${
-                  msg.sender === 'user'
-                    ? 'rounded-l-2xl rounded-tr-2xl rounded-br-md bg-blue-600 text-white'
-                    : 'rounded-tl-2xl rounded-r-2xl rounded-bl-md border border-gray-200 bg-white text-gray-900'
-                } `}
-                style={{ maxWidth: '70%', wordBreak: 'break-word' }}
-              >
-                {typeof msg.text === 'string' ? (
-                  <span>{msg.text}</span>
-                ) : (
-                  <div>{msg.text}</div>
-                )}
-              </div>
-
-              {msg.sender === 'user' && (
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-300">
-                  <User className="h-4 w-4 text-gray-600" />
-                </div>
-              )}
-            </div>
+            <MessageBubble key={index} message={msg} />
           ))}
-
           {isTyping && (
             <div className="flex justify-start gap-4">
               <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
@@ -171,7 +115,6 @@ export function MainContent2({ conversationId }: MainContent2Props) {
               </div>
             </div>
           )}
-
           <div ref={messagesEndRef} />
         </div>
       </div>
