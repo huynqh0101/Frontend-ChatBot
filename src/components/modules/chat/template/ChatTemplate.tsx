@@ -23,25 +23,22 @@ export function ChatTemplate() {
   const handleStartNewChat = async (firstMessage: string) => {
     try {
       const token = localStorage.getItem('token')
+      // Nếu không có token, vẫn cho phép gửi tin nhắn (ví dụ: gọi API public hoặc tạo conversation local)
       if (!token) {
-        console.error('No token found')
+        // Nếu API yêu cầu token, bạn có thể tạo một conversation tạm thời ở client hoặc gọi API khác
+        // Ví dụ: chỉ log ra hoặc tạo conversation local
+        console.warn('No token found, creating local conversation')
+        setSelectedConversationId('local-' + Date.now())
         return
       }
 
-      console.log('Sending first message:', firstMessage) // Debug log
-
-      // Gửi tin nhắn đầu tiên với conversationId: null
+      // Nếu có token thì gọi API như cũ
       const result = await sendMessage(token, firstMessage, null)
-
-      console.log('API Response:', result) // Debug log
-
-      // Kiểm tra các field khác nhau mà API có thể trả về
       const conversationId =
         result.conversationId || result.conversation_id || result.id
 
       if (conversationId) {
         setSelectedConversationId(conversationId)
-        // Trigger refresh sidebar để hiển thị conversation mới
         setRefreshConversations((prev) => prev + 1)
       } else {
         console.error('No conversation ID in response:', result)
@@ -52,7 +49,7 @@ export function ChatTemplate() {
   }
 
   return (
-    <div className="relative flex h-screen bg-gray-100">
+    <div className="relative flex h-screen bg-white">
       {/* Sidebar với toggle button bên trong */}
       {isLoggedIn && (
         <Sidebar

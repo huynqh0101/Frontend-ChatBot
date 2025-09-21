@@ -127,12 +127,14 @@ export function Sidebar({
 
   return (
     <aside
-      className={`my-3 ml-3 flex h-[calc(100vh-24px)] flex-col border bg-white shadow-lg transition-all duration-300 ${
-        collapsed ? 'w-16 items-center p-2' : 'w-72 rounded-2xl p-4'
+      className={`flex flex-col border bg-white shadow-lg transition-all duration-300 ${
+        collapsed
+          ? 'h-full w-16 items-center p-2'
+          : 'my-3 ml-3 h-[calc(100vh-24px)] w-72 rounded-2xl p-4'
       }`}
     >
       {collapsed ? (
-        <div className="flex flex-1 flex-col items-center gap-4">
+        <div className="flex h-full flex-1 flex-col items-center gap-4">
           {/* Toggle button khi collapsed */}
           <button
             onClick={onToggle}

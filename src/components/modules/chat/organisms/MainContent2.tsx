@@ -118,19 +118,6 @@ export function MainContent2({ conversationId }: MainContent2Props) {
 
   return (
     <main className="flex h-screen flex-col bg-gradient-to-br from-gray-50 via-white to-blue-50">
-      {/* Header */}
-      <div className="border-b border-gray-200 bg-white/80 px-6 py-4 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-4xl items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
-            <Bot className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <h1 className="font-semibold text-gray-900">CHAT A.I+</h1>
-            <p className="text-sm text-gray-500">AI Assistant</p>
-          </div>
-        </div>
-      </div>
-
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="mx-auto max-w-4xl space-y-6">
