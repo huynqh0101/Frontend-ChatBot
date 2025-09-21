@@ -124,53 +124,33 @@ export function MainContent2({ conversationId }: MainContent2Props) {
           {messages.map((msg, index) => (
             <div
               key={index}
-              className={`flex gap-4 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
+              {/* Avatar */}
               {msg.sender === 'bot' && (
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
                   <Bot className="h-4 w-4 text-white" />
                 </div>
               )}
 
+              {/* Bubble chat */}
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                className={`inline-block px-4 py-2 text-base font-normal shadow ${
                   msg.sender === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : 'border border-gray-100 bg-white text-gray-800 shadow-sm'
-                }`}
+                    ? 'rounded-l-2xl rounded-tr-2xl rounded-br-md bg-blue-600 text-white'
+                    : 'rounded-tl-2xl rounded-r-2xl rounded-bl-md border border-gray-200 bg-white text-gray-900'
+                } `}
+                style={{ maxWidth: '70%', wordBreak: 'break-word' }}
               >
-                <div className="prose prose-sm max-w-none">
-                  {typeof msg.text === 'string' ? (
-                    <p
-                      className={
-                        msg.sender === 'user' ? 'text-white' : 'text-gray-800'
-                      }
-                    >
-                      {msg.text}
-                    </p>
-                  ) : (
-                    <div className="text-gray-800">{msg.text}</div>
-                  )}
-                </div>
-
-                {msg.sender === 'bot' && (
-                  <div className="mt-3 flex items-center gap-2 border-t border-gray-100 pt-2">
-                    <button className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-gray-500 transition-colors hover:bg-gray-100">
-                      <Copy className="h-3 w-3" />
-                      Copy
-                    </button>
-                    <button className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-gray-500 transition-colors hover:bg-gray-100">
-                      <ThumbsUp className="h-3 w-3" />
-                    </button>
-                    <button className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-gray-500 transition-colors hover:bg-gray-100">
-                      <ThumbsDown className="h-3 w-3" />
-                    </button>
-                  </div>
+                {typeof msg.text === 'string' ? (
+                  <span>{msg.text}</span>
+                ) : (
+                  <div>{msg.text}</div>
                 )}
               </div>
 
               {msg.sender === 'user' && (
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-300">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-300">
                   <User className="h-4 w-4 text-gray-600" />
                 </div>
               )}
