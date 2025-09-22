@@ -4,21 +4,16 @@ import { Sidebar } from '../organisms/Sidebar'
 import { MainContent } from '../organisms/MainContent'
 import { MainContent2 } from '../organisms/MainContent2'
 import { sendMessage } from '@/services/chatService'
-import { PanelLeft, PanelRight } from 'lucide-react'
-
-interface Message {
-  role: string
-  content: string
-}
+import { ApiMessage } from '@/contents/interfaces' // import kiểu ApiMessage
 
 export function ChatTemplate() {
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(null)
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-  const [refreshConversations, setRefreshConversations] = useState<number>(0) // Trigger để refresh sidebar
+  const [refreshConversations, setRefreshConversations] = useState<number>(0)
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [initialMessages, setInitialMessages] = useState<Message[]>([])
+  const [initialMessages, setInitialMessages] = useState<ApiMessage[]>([]) // dùng kiểu ApiMessage
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -31,7 +26,15 @@ export function ChatTemplate() {
       const token = localStorage.getItem('token')
       if (!token) {
         setSelectedConversationId('local-' + Date.now())
-        setInitialMessages([{ role: 'user', content: firstMessage }])
+        setInitialMessages([
+          {
+            id: 'local-' + Date.now(),
+            conversationId: 'local-' + Date.now(),
+            role: 'user',
+            content: firstMessage,
+            createdAt: new Date().toISOString(),
+          },
+        ])
         return
       }
 
@@ -67,7 +70,6 @@ export function ChatTemplate() {
         />
       )}
 
-      {/* Main content - bỏ toggle button ở đây */}
       <div className="flex-1">
         {selectedConversationId ? (
           <MainContent2

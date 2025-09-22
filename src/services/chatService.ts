@@ -1,15 +1,10 @@
+import { ApiMessage } from '@/contents/interfaces'
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 export interface Conversation {
   id: string
   title: string
-}
-
-export interface Message {
-  id: string
-  content: string
-  role: 'user' | 'assistant'
-  timestamp: string
 }
 
 export async function fetchConversations(
@@ -60,9 +55,9 @@ export const sendMessage = async (
 export const fetchMessages = async (
   token: string,
   conversationId: string
-): Promise<Message[]> => {
+): Promise<ApiMessage[]> => {
   const response = await fetch(
-    `${API_BASE_URL}/chat/conversations/${conversationId}/messages`,
+    `${API_BASE_URL}/chat/conversations/${conversationId}`,
     {
       headers: {
         'Content-Type': 'application/json',

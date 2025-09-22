@@ -10,3 +10,12 @@ export interface ILogin {
   email: string
   password: string
 }
+
+export interface ApiMessage {
+  id: string
+  conversationId: string
+  role: string
+  content: string
+  metadata?: JSON
+  createdAt: string
+}

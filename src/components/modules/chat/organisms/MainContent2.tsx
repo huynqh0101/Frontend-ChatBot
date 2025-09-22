@@ -1,12 +1,13 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, Bot, User, Copy, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { Send, Bot } from 'lucide-react'
 import { MessageBubble, type Message } from '../molecules/MessageBubble'
 import { fetchMessages, sendMessage } from '@/services/chatService'
 
+import { ApiMessage } from '@/contents/interfaces'
 interface MainContent2Props {
   conversationId: string
-  initialMessages?: any[] // nhận từ API khi tạo mới
+  initialMessages?: ApiMessage[]
 }
 
 export function MainContent2({
@@ -20,7 +21,7 @@ export function MainContent2({
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Map API messages về dạng MessageBubble.Message
-  const mapApiMessages = (msgs: any[]): Message[] =>
+  const mapApiMessages = (msgs: ApiMessage[]): Message[] =>
     msgs.map((msg) => ({
       sender: msg.role === 'user' ? 'user' : 'bot',
       name: msg.role === 'user' ? 'Andrew Neilson' : 'CHAT A.I+',
