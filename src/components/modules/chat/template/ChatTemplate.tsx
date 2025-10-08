@@ -4,7 +4,7 @@ import { Sidebar } from '../organisms/Sidebar'
 import { MainContent } from '../organisms/MainContent'
 import { MainContent2 } from '../organisms/MainContent2'
 import { sendMessage } from '@/services/chatService'
-import { ApiMessage } from '@/contents/interfaces' // import kiểu ApiMessage
+import { ApiMessage } from '@/contents/interfaces'
 
 export function ChatTemplate() {
   const [selectedConversationId, setSelectedConversationId] = useState<
@@ -13,17 +13,22 @@ export function ChatTemplate() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
   const [refreshConversations, setRefreshConversations] = useState<number>(0)
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [initialMessages, setInitialMessages] = useState<ApiMessage[]>([]) // dùng kiểu ApiMessage
+  const [initialMessages, setInitialMessages] = useState<ApiMessage[]>([])
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    setIsLoggedIn(!!token)
+    const checkToken = () => {
+      const token = localStorage.getItem('accessToken')
+      setIsLoggedIn(!!token)
+    }
+    checkToken()
+    window.addEventListener('storage', checkToken)
+    return () => window.removeEventListener('storage', checkToken)
   }, [])
 
   // Hàm xử lý tạo conversation mới bằng cách gửi tin nhắn đầu tiên
   const handleStartNewChat = async (firstMessage: string) => {
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('accessToken')
       if (!token) {
         setSelectedConversationId('local-' + Date.now())
         setInitialMessages([

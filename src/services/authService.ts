@@ -1,4 +1,4 @@
-import type { IRegister, ILogin } from '@/contents/interfaces'
+import type { IRegister, ILogin, LoginResponse } from '@/contents/interfaces'
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1'
 
@@ -15,7 +15,7 @@ export async function register(payload: IRegister) {
   return res.json()
 }
 
-export async function login(payload: ILogin) {
+export async function login(payload: ILogin): Promise<LoginResponse> {
   const res = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -25,9 +25,5 @@ export async function login(payload: ILogin) {
     const error = await res.json()
     throw new Error(error.message || 'Login failed')
   }
-  // Trả về object chứa user và token
-  return res.json() as Promise<{
-    user: { id: string; name: string; email: string }
-    token: string
-  }>
+  return res.json()
 }

@@ -31,7 +31,7 @@ export function Sidebar({
 
   useEffect(() => {
     const loadConversations = async () => {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('accessToken')
       if (!token) return
 
       try {
@@ -64,7 +64,7 @@ export function Sidebar({
     if (!conversation) return
 
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('accessToken')
       if (!token) return
 
       await deleteConversation(token, conversation.id)
@@ -86,7 +86,7 @@ export function Sidebar({
     }
 
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('accessToken')
       if (!token) return
 
       await deleteAllConversations(token)

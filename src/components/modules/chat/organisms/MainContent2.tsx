@@ -39,7 +39,7 @@ export function MainContent2({
     } else {
       // Nếu chuyển sang conversation cũ, fetch từ API
       const loadMessages = async () => {
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem('accessToken')
         if (!token) return
         try {
           const msgs = await fetchMessages(token, conversationId)
@@ -58,7 +58,7 @@ export function MainContent2({
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('accessToken')
     if (!token) return
 
     setIsTyping(true)

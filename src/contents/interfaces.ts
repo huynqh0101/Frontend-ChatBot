@@ -19,3 +19,18 @@ export interface ApiMessage {
   metadata?: JSON
   createdAt: string
 }
+
+export interface IUser {
+  id: string
+  name: string
+  email: string
+  image: string | null
+  role: string
+  createdAt: string
+}
+
+export interface LoginResponse {
+  user: IUser
+  token: string
+  refreshToken: string
+}

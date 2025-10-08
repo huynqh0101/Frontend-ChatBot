@@ -41,9 +41,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
   if (isUser) {
     return (
-      <div className="mb-6 flex items-start justify-end gap-3">
-        <div className="order-2 max-w-[70%]">
-          <div className="rounded-2xl rounded-br-sm bg-blue-500 px-4 py-2.5 text-white shadow-sm">
+      <div className="mb-6 flex items-start justify-end gap-x-2 gap-y-3">
+        <div className="order-2 mt-3 max-w-[70%]">
+          <div className="rounded-2xl rounded-tr-sm bg-blue-500 px-4 py-2.5 text-white shadow-sm">
             <div className="text-sm leading-relaxed">{message.text}</div>
           </div>
         </div>
@@ -62,7 +62,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   }
 
   return (
-    <div className="mb-6 flex items-start gap-3">
+    <div className="mb-6 flex items-start gap-x-2 gap-y-3">
       <div className="flex-shrink-0">
         <Image
           src={message.avatar}
@@ -73,8 +73,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           unoptimized
         />
       </div>
-      <div className="max-w-[768px] flex-1">
-        <div className="rounded-2xl rounded-bl-sm bg-gray-50 px-4 py-2.5 shadow-sm">
+      <div className="mt-3 max-w-[768px] flex-1">
+        <div className="rounded-2xl rounded-tl-sm bg-gray-50 px-4 py-2.5 shadow-sm">
           <div className="text-sm leading-relaxed text-gray-800">
             {message.text}
           </div>

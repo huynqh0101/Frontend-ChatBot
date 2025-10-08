@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { login } from '@/services/authService'
 import { useRouter } from 'next/navigation'
+import { useTokenStorage } from '@/hooks/core/useTokenStorage'
 
 // Component nút social login có thể tái sử dụng
 const SocialButton = ({
@@ -25,6 +26,7 @@ export function LoginForm() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const router = useRouter()
+  const { setTokens } = useTokenStorage()
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -36,8 +38,15 @@ export function LoginForm() {
 
     try {
       const res = await login({ email, password })
-      if (res.token) {
-        localStorage.setItem('token', res.token)
+      if (res.token && res.refreshToken && res.user) {
+        setTokens(
+          {
+            accessToken: res.token,
+            refreshToken: res.refreshToken,
+            user: res.user,
+          },
+          { rememberMe: true }
+        )
       }
       router.push('/')
     } catch (err: unknown) {
