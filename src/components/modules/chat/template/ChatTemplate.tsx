@@ -28,35 +28,40 @@ export function ChatTemplate() {
   // Hàm xử lý tạo conversation mới bằng cách gửi tin nhắn đầu tiên
   const handleStartNewChat = async (firstMessage: string) => {
     try {
-      const token = localStorage.getItem('accessToken')
-      if (!token) {
-        setSelectedConversationId('local-' + Date.now())
-        setInitialMessages([
-          {
-            id: 'local-' + Date.now(),
-            conversationId: 'local-' + Date.now(),
-            role: 'user',
-            content: firstMessage,
-            createdAt: new Date().toISOString(),
-          },
-        ])
-        return
-      }
-
+      const token = localStorage.getItem('accessToken') || ''
+      // Luôn gọi API
       const result = await sendMessage(token, firstMessage, null)
       const conversationId =
         result.conversation?.id ||
         result.conversationId ||
         result.conversation_id ||
-        result.id
+        result.id ||
+        'local-' + Date.now()
 
-      if (conversationId) {
-        setSelectedConversationId(conversationId)
-        setInitialMessages(result.messages || [])
-        setRefreshConversations((prev) => prev + 1)
-      } else {
-        console.error('No conversation ID in response:', result)
-      }
+      setSelectedConversationId(conversationId)
+      setInitialMessages(
+        result.messages && result.messages.length > 0
+          ? result.messages
+          : [
+              {
+                id: conversationId + '-user',
+                conversationId,
+                role: 'user',
+                content: firstMessage,
+                createdAt: new Date().toISOString(),
+              },
+              result.message
+                ? {
+                    id: conversationId + '-ai',
+                    conversationId,
+                    role: 'bot',
+                    content: result.message,
+                    createdAt: new Date().toISOString(),
+                  }
+                : null,
+            ].filter(Boolean)
+      )
+      setRefreshConversations((prev) => prev + 1)
     } catch (error) {
       console.error('Error creating conversation:', error)
     }

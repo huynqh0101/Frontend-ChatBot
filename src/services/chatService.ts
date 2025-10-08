@@ -26,18 +26,21 @@ export async function fetchConversations(
   }
 }
 
-// Gửi tin nhắn - sẽ tự động tạo conversation mới nếu conversationId là null
 export const sendMessage = async (
   token: string,
   content: string,
   conversationId: string | null = null
 ) => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
   const response = await fetch(`${API_BASE_URL}/chat/message`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
     body: JSON.stringify({
       content,
       conversationId,
