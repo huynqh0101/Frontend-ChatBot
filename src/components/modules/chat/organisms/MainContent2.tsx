@@ -1,24 +1,28 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, Bot } from 'lucide-react'
+import { Send, Bot, ArrowLeft } from 'lucide-react'
 import { MessageBubble, type Message } from '../molecules/MessageBubble'
 import { fetchMessages, sendMessage } from '@/services/chatService'
-
 import { ApiMessage } from '@/contents/interfaces'
+import { useRouter } from 'next/navigation'
+
 interface MainContent2Props {
   conversationId: string
   initialMessages?: ApiMessage[]
+  onNewMessage?: () => void
 }
 
 export function MainContent2({
   conversationId,
   initialMessages = [],
+  onNewMessage,
 }: MainContent2Props) {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
 
   // Map API messages về dạng MessageBubble.Message
   const mapApiMessages = (msgs: ApiMessage[]): Message[] =>
@@ -33,11 +37,11 @@ export function MainContent2({
     }))
 
   useEffect(() => {
-    // Nếu có initialMessages (tạo mới), dùng luôn
+    // Nếu có initialMessages, dùng luôn
     if (initialMessages.length > 0) {
       setMessages(mapApiMessages(initialMessages))
     } else {
-      // Nếu chuyển sang conversation cũ, fetch từ API
+      // Nếu không có, fetch từ API
       const loadMessages = async () => {
         const token = localStorage.getItem('accessToken')
         if (!token) return
@@ -45,6 +49,7 @@ export function MainContent2({
           const msgs = await fetchMessages(token, conversationId)
           setMessages(mapApiMessages(msgs))
         } catch (err) {
+          console.error('Error loading messages:', err)
           setMessages([])
         }
       }
@@ -61,30 +66,52 @@ export function MainContent2({
     const token = localStorage.getItem('accessToken')
     if (!token) return
 
+    const userMessage = inputValue.trim()
+    setInputValue('')
     setIsTyping(true)
-    // Gửi tin nhắn lên API
-    const result = await sendMessage(token, inputValue, conversationId)
-    if (result.messages) {
-      setMessages((prev) => [...prev, ...mapApiMessages(result.messages)])
-    } else {
-      setMessages((prev) => [
-        ...prev,
-        {
-          sender: 'user',
-          name: 'Andrew Neilson',
-          avatar: 'https://placehold.co/40x40/E8E8E8/424242?text=AN',
-          text: inputValue,
-        },
-        {
+
+    // Thêm tin nhắn user ngay lập tức
+    const newUserMessage: Message = {
+      sender: 'user',
+      name: 'Andrew Neilson',
+      avatar: 'https://placehold.co/40x40/E8E8E8/424242?text=AN',
+      text: userMessage,
+    }
+    setMessages((prev) => [...prev, newUserMessage])
+
+    try {
+      // Gửi tin nhắn lên API
+      const result = await sendMessage(token, userMessage, conversationId)
+
+      if (result.messages && result.messages.length > 0) {
+        // Nếu API trả về danh sách messages mới, replace toàn bộ
+        setMessages(mapApiMessages(result.messages))
+      } else if (result.message) {
+        // Nếu chỉ có 1 message response, thêm vào
+        const botMessage: Message = {
           sender: 'bot',
           name: 'CHAT A.I+',
           avatar: 'https://placehold.co/40x40/171717/FFFFFF?text=A.I',
-          text: result.message || 'AI is thinking...',
-        },
-      ])
+          text: result.message,
+        }
+        setMessages((prev) => [...prev, botMessage])
+      }
+
+      // Callback để refresh sidebar
+      onNewMessage?.()
+    } catch (error) {
+      console.error('Error sending message:', error)
+      // Thêm error message
+      const errorMessage: Message = {
+        sender: 'bot',
+        name: 'CHAT A.I+',
+        avatar: 'https://placehold.co/40x40/171717/FFFFFF?text=A.I',
+        text: 'Sorry, I encountered an error. Please try again.',
+      }
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
+      setIsTyping(false)
     }
-    setInputValue('')
-    setIsTyping(false)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -99,9 +126,19 @@ export function MainContent2({
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="mx-auto max-w-4xl space-y-6">
+          {messages.length === 0 && !isTyping && (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <Bot className="mx-auto h-12 w-12 text-gray-400" />
+                <p className="mt-4 text-gray-500">Start a conversation...</p>
+              </div>
+            </div>
+          )}
+
           {messages.map((msg, index) => (
             <MessageBubble key={index} message={msg} />
           ))}
+
           {isTyping && (
             <div className="flex justify-start gap-4">
               <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
@@ -132,11 +169,12 @@ export function MainContent2({
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 pr-12 text-gray-800 shadow-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                disabled={isTyping}
+                className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 pr-12 text-gray-800 shadow-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50"
               />
               <button
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim()}
+                disabled={!inputValue.trim() || isTyping}
                 className="absolute top-1/2 right-2 -translate-y-1/2 rounded-xl bg-blue-600 p-2 text-white transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
               >
                 <Send className="h-4 w-4" />
