@@ -32,14 +32,26 @@ export function Sidebar({
   useEffect(() => {
     const loadConversations = async () => {
       const token = localStorage.getItem('accessToken')
-      if (!token) return
+
+      if (!token) {
+        return
+      }
 
       try {
         const conversationList = await fetchConversations(token)
         setConversations(conversationList)
       } catch (error) {
         console.error('Error loading conversations:', error)
-        setConversations([])
+        // Nếu lỗi 401/403, có thể token hết hạn
+        if (
+          error instanceof Error &&
+          (error.message.includes('401') || error.message.includes('403'))
+        ) {
+          localStorage.removeItem('accessToken')
+          window.location.href = '/login'
+        } else {
+          setConversations([])
+        }
       }
     }
 

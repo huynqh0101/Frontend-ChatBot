@@ -16,7 +16,6 @@ export function MainContent({
 
   const handleSendMessage = () => {
     if (inputValue.trim()) {
-      // Gửi tin nhắn đầu tiên và tạo conversation mới
       onStartNewChat(inputValue.trim())
       setInputValue('')
     }

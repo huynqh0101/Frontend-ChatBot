@@ -16,7 +16,20 @@ export async function fetchConversations(
       Authorization: `Bearer ${token}`,
     },
   })
+
+  if (res.status === 404) {
+    return []
+  }
+
+  if (!res.ok) {
+    const errorText = await res.text()
+    throw new Error(
+      `Failed to fetch conversations: ${res.status} - ${errorText}`
+    )
+  }
+
   const data = await res.json()
+
   if (Array.isArray(data)) {
     return data
   } else if (Array.isArray(data.data)) {
@@ -34,6 +47,7 @@ export const sendMessage = async (
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   }
+
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
   }
@@ -48,36 +62,46 @@ export const sendMessage = async (
   })
 
   if (!response.ok) {
-    throw new Error('Failed to send message')
+    const errorText = await response.text()
+    throw new Error(`Failed to send message: ${response.status} - ${errorText}`)
   }
 
-  return response.json()
+  const data = await response.json()
+  return data
 }
 
-// Lấy tin nhắn của một conversation
 export const fetchMessages = async (
   token: string,
   conversationId: string
 ): Promise<ApiMessage[]> => {
-  const response = await fetch(
-    `${API_BASE_URL}/chat/conversations/${conversationId}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  )
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch messages')
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
   }
 
-  const data = await response.json()
-  return Array.isArray(data) ? data : data.data || []
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/chat/conversations/${conversationId}`,
+      {
+        headers,
+      }
+    )
+
+    if (response.status === 404) {
+      return []
+    }
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch messages: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return Array.isArray(data) ? data : data.data || []
+  } catch (error) {
+    return []
+  }
 }
 
-// Xóa một conversation
 export const deleteConversation = async (
   token: string,
   conversationId: string
@@ -100,7 +124,6 @@ export const deleteConversation = async (
   return response.json()
 }
 
-// Xóa tất cả conversations
 export const deleteAllConversations = async (token: string) => {
   const response = await fetch(`${API_BASE_URL}/chat/conversations`, {
     method: 'DELETE',

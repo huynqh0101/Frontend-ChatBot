@@ -1,14 +1,13 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, Bot, ArrowLeft } from 'lucide-react'
+import { Send, Bot } from 'lucide-react'
 import { MessageBubble, type Message } from '../molecules/MessageBubble'
-import { fetchMessages, sendMessage } from '@/services/chatService'
+import { sendMessage } from '@/services/chatService'
 import { ApiMessage } from '@/contents/interfaces'
-import { useRouter } from 'next/navigation'
 
 interface MainContent2Props {
   conversationId: string
-  initialMessages?: ApiMessage[]
+  initialMessages: ApiMessage[]
   onNewMessage?: () => void
 }
 
@@ -22,9 +21,7 @@ export function MainContent2({
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const router = useRouter()
 
-  // Map API messages về dạng MessageBubble.Message
   const mapApiMessages = (msgs: ApiMessage[]): Message[] =>
     msgs.map((msg) => ({
       sender: msg.role === 'user' ? 'user' : 'bot',
@@ -37,25 +34,14 @@ export function MainContent2({
     }))
 
   useEffect(() => {
-    // Nếu có initialMessages, dùng luôn
-    if (initialMessages.length > 0) {
+    if (initialMessages && initialMessages.length > 0) {
       setMessages(mapApiMessages(initialMessages))
     } else {
-      // Nếu không có, fetch từ API
-      const loadMessages = async () => {
-        const token = localStorage.getItem('accessToken')
-        if (!token) return
-        try {
-          const msgs = await fetchMessages(token, conversationId)
-          setMessages(mapApiMessages(msgs))
-        } catch (err) {
-          console.error('Error loading messages:', err)
-          setMessages([])
-        }
+      if (messages.length === 0) {
+        setMessages([])
       }
-      loadMessages()
     }
-  }, [conversationId, initialMessages])
+  }, [initialMessages])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -63,14 +49,12 @@ export function MainContent2({
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return
-    const token = localStorage.getItem('accessToken')
-    if (!token) return
 
     const userMessage = inputValue.trim()
+    const token = localStorage.getItem('accessToken') || ''
     setInputValue('')
     setIsTyping(true)
 
-    // Thêm tin nhắn user ngay lập tức
     const newUserMessage: Message = {
       sender: 'user',
       name: 'Andrew Neilson',
@@ -80,33 +64,39 @@ export function MainContent2({
     setMessages((prev) => [...prev, newUserMessage])
 
     try {
-      // Gửi tin nhắn lên API
       const result = await sendMessage(token, userMessage, conversationId)
 
       if (result.messages && result.messages.length > 0) {
-        // Nếu API trả về danh sách messages mới, replace toàn bộ
         setMessages(mapApiMessages(result.messages))
-      } else if (result.message) {
-        // Nếu chỉ có 1 message response, thêm vào
+      } else if (result.message || result.content) {
         const botMessage: Message = {
           sender: 'bot',
           name: 'CHAT A.I+',
           avatar: 'https://placehold.co/40x40/171717/FFFFFF?text=A.I',
-          text: result.message,
+          text: result.message || result.content || 'No response received',
+        }
+        setMessages((prev) => [...prev, botMessage])
+      } else {
+        const botMessage: Message = {
+          sender: 'bot',
+          name: 'CHAT A.I+',
+          avatar: 'https://placehold.co/40x40/171717/FFFFFF?text=A.I',
+          text: 'I received your message but had trouble responding. Please try again.',
         }
         setMessages((prev) => [...prev, botMessage])
       }
 
-      // Callback để refresh sidebar
-      onNewMessage?.()
+      if (token) {
+        onNewMessage?.()
+      }
     } catch (error) {
       console.error('Error sending message:', error)
-      // Thêm error message
+
       const errorMessage: Message = {
         sender: 'bot',
         name: 'CHAT A.I+',
         avatar: 'https://placehold.co/40x40/171717/FFFFFF?text=A.I',
-        text: 'Sorry, I encountered an error. Please try again.',
+        text: 'Sorry, I encountered an error. Please try again or check your connection.',
       }
       setMessages((prev) => [...prev, errorMessage])
     } finally {

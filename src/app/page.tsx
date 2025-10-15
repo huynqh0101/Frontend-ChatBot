@@ -15,8 +15,6 @@ export default function HomePage() {
       const loggedIn = !!token
       setIsLoggedIn(loggedIn)
       setIsLoading(false)
-
-      // Nếu đã đăng nhập, chuyển đến trang conversation
       if (loggedIn) {
         router.replace('/conversation')
       }
@@ -27,11 +25,17 @@ export default function HomePage() {
     return () => window.removeEventListener('storage', checkToken)
   }, [router])
 
-  // Hàm xử lý tạo conversation mới bằng cách gửi tin nhắn đầu tiên
   const handleStartNewChat = async (firstMessage: string) => {
     try {
-      const token = localStorage.getItem('accessToken') || ''
-      const result = await sendMessage(token, firstMessage, null)
+      console.log('=== STARTING NEW CHAT ===')
+      console.log('First message:', firstMessage)
+
+      const token = localStorage.getItem('accessToken')
+      console.log('Has token:', !!token)
+
+      const result = await sendMessage(token || '', firstMessage, null)
+      console.log('Send message result:', result)
+
       const conversationId =
         result.conversation?.id ||
         result.conversationId ||
@@ -39,14 +43,56 @@ export default function HomePage() {
         result.id ||
         'local-' + Date.now()
 
-      // Chuyển đến trang conversation với ID
+      console.log('Conversation ID:', conversationId)
+
+      // Tạo messages array từ response
+      let initialMessages = []
+
+      if (result.messages && result.messages.length > 0) {
+        // Nếu API trả về messages array
+        initialMessages = result.messages
+        console.log('Using API messages:', initialMessages)
+      } else {
+        // Nếu không có messages array, tạo manually từ input và response
+        const userMessage = {
+          role: 'user',
+          content: firstMessage,
+          createdAt: new Date().toISOString(),
+        }
+
+        const botResponse =
+          result.message || result.content || 'Hello! How can I help you?'
+        const botMessage = {
+          role: 'assistant',
+          content: botResponse,
+          createdAt: new Date().toISOString(),
+        }
+
+        initialMessages = [userMessage, botMessage]
+        console.log('Created manual messages:', initialMessages)
+      }
+
+      // Luôn lưu vào sessionStorage (dù có login hay không)
+      console.log('Saving to sessionStorage:', initialMessages)
+      sessionStorage.setItem('initialMessages', JSON.stringify(initialMessages))
+
+      // Verify sessionStorage
+      const saved = sessionStorage.getItem('initialMessages')
+      console.log('Verified sessionStorage save:', !!saved)
+
+      // Lưu anonymous conversation ID nếu chưa đăng nhập
+      if (!token) {
+        localStorage.setItem('anonymousConversationId', conversationId)
+        console.log('Saved anonymous conversation ID')
+      }
+
+      console.log('Redirecting to conversation...')
       router.push(`/conversation/${conversationId}`)
     } catch (error) {
       console.error('Error creating conversation:', error)
     }
   }
 
-  // Hiển thị loading khi đang check token
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-white">
@@ -58,7 +104,6 @@ export default function HomePage() {
     )
   }
 
-  // Chỉ hiển thị MainContent khi chưa đăng nhập
   if (!isLoggedIn) {
     return (
       <div className="h-screen bg-white">
@@ -70,6 +115,5 @@ export default function HomePage() {
     )
   }
 
-  // Nếu đã đăng nhập thì sẽ redirect, return null để tránh flash
   return null
 }

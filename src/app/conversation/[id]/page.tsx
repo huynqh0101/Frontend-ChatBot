@@ -27,26 +27,52 @@ export default function ConversationDetailPage() {
     return () => window.removeEventListener('storage', checkToken)
   }, [])
 
-  // Load initial messages khi có conversationId
   useEffect(() => {
     const loadInitialMessages = async () => {
       if (!conversationId) return
 
       const token = localStorage.getItem('accessToken')
       if (!token) {
+        const savedMessages = sessionStorage.getItem('initialMessages')
+        if (savedMessages) {
+          try {
+            const messages = JSON.parse(savedMessages)
+            setInitialMessages(messages)
+          } catch (e) {
+            console.error('Error parsing saved messages:', e)
+            setInitialMessages([])
+          }
+        } else {
+          setInitialMessages([])
+        }
         setLoading(false)
         return
       }
 
       try {
         const messages = await fetchMessages(token, conversationId)
-        setInitialMessages(messages)
+        if (messages && messages.length > 0) {
+          setInitialMessages(messages)
+          setLoading(false)
+          return
+        }
       } catch (error) {
-        console.error('Error loading messages:', error)
-        setInitialMessages([])
-      } finally {
-        setLoading(false)
+        console.error('Error loading messages from API:', error)
       }
+
+      const savedMessages = sessionStorage.getItem('initialMessages')
+      if (savedMessages) {
+        try {
+          const messages = JSON.parse(savedMessages)
+          setInitialMessages(messages)
+        } catch (e) {
+          console.error('Error parsing saved messages:', e)
+          setInitialMessages([])
+        }
+      } else {
+        setInitialMessages([])
+      }
+      setLoading(false)
     }
 
     loadInitialMessages()
@@ -72,8 +98,7 @@ export default function ConversationDetailPage() {
   }
 
   return (
-    <div className="relative flex h-screen bg-white">
-      {/* Sidebar với toggle button bên trong */}
+    <div className="flex h-screen bg-white">
       {isLoggedIn && (
         <Sidebar
           onSelectConversation={handleSelectConversation}
@@ -88,7 +113,7 @@ export default function ConversationDetailPage() {
         <MainContent2
           conversationId={conversationId}
           initialMessages={initialMessages}
-          onNewMessage={() => setRefreshConversations((prev) => prev + 1)}
+          onNewMessage={() => setRefreshConversations(Date.now())}
         />
       </div>
     </div>
