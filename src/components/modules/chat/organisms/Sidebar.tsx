@@ -5,19 +5,21 @@ import SidebarHeader from '../molecules/SidebarHeader'
 import SidebarConversations from '../molecules/SidebarConversations'
 import SidebarFooter from '../molecules/SidebarFooter'
 import SidebarLast7Days from '../molecules/SidebarLast7Days'
+import { useAuth } from '@/hooks/core/useAuth'
 import {
   fetchConversations,
   deleteConversation,
   deleteAllConversations,
-  Conversation,
+  updateConversationTitle,
 } from '@/services/chatService'
+import { Conversation } from '@/contents/interfaces'
 
 interface SidebarProps {
   onSelectConversation: (id: string | null) => void
   selectedConversationId: string | null
   refreshTrigger?: number
   collapsed?: boolean
-  onToggle?: () => void // Thêm prop để toggle
+  onToggle?: () => void
 }
 
 export function Sidebar({
@@ -28,62 +30,70 @@ export function Sidebar({
   onToggle,
 }: SidebarProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
+  const [loading, setLoading] = useState(true)
+  const { isLoggedIn } = useAuth()
 
-  useEffect(() => {
-    const loadConversations = async () => {
-      const token = localStorage.getItem('accessToken')
-
-      if (!token) {
-        return
-      }
-
-      try {
-        const conversationList = await fetchConversations(token)
-        setConversations(conversationList)
-      } catch (error) {
-        console.error('Error loading conversations:', error)
-        // Nếu lỗi 401/403, có thể token hết hạn
-        if (
-          error instanceof Error &&
-          (error.message.includes('401') || error.message.includes('403'))
-        ) {
-          localStorage.removeItem('accessToken')
-          window.location.href = '/login'
-        } else {
-          setConversations([])
-        }
-      }
+  const loadConversations = async () => {
+    if (!isLoggedIn) {
+      setConversations([])
+      setLoading(false)
+      return
     }
 
+    try {
+      setLoading(true)
+      // apiClient sẽ tự động handle authentication và refresh token
+      const conversationList = await fetchConversations()
+      setConversations(conversationList)
+    } catch (error) {
+      console.error('Error loading conversations:', error)
+      // apiClient sẽ handle redirect to login nếu cần
+      setConversations([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
     loadConversations()
-  }, [refreshTrigger])
+  }, [isLoggedIn, refreshTrigger])
 
   const handleNewChat = () => {
     onSelectConversation(null)
   }
 
-  const handleEditConversation = async (index: number, newName: string) => {
-    setConversations((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, title: newName } : item))
-    )
+  const handleEditConversation = async (
+    conversationId: string,
+    newName: string
+  ) => {
+    try {
+      // apiClient sẽ tự động handle authentication
+      await updateConversationTitle(conversationId, newName)
 
-    // TODO: Call API to update conversation title
-    // await updateConversationTitle(token, conversations[index].id, newName)
+      // Optimistic update
+      setConversations((prev) =>
+        prev.map((item) =>
+          item.id === conversationId ? { ...item, title: newName } : item
+        )
+      )
+    } catch (error) {
+      console.error('Error updating conversation title:', error)
+      // Có thể thêm toast notification ở đây
+    }
   }
 
-  const handleDeleteConversation = async (index: number) => {
-    const conversation = conversations[index]
-    if (!conversation) return
-
+  const handleDeleteConversation = async (conversationId: string) => {
     try {
-      const token = localStorage.getItem('accessToken')
-      if (!token) return
+      // apiClient sẽ tự động handle authentication
+      await deleteConversation(conversationId)
 
-      await deleteConversation(token, conversation.id)
+      // Optimistic update
+      setConversations((prev) =>
+        prev.filter((item) => item.id !== conversationId)
+      )
 
-      setConversations((prev) => prev.filter((_, i) => i !== index))
-
-      if (selectedConversationId === conversation.id) {
+      // If deleted conversation was selected, redirect to new chat
+      if (selectedConversationId === conversationId) {
         onSelectConversation(null)
       }
     } catch (error) {
@@ -98,13 +108,13 @@ export function Sidebar({
     }
 
     try {
-      const token = localStorage.getItem('accessToken')
-      if (!token) return
+      // apiClient sẽ tự động handle authentication
+      await deleteAllConversations()
 
-      await deleteAllConversations(token)
-
+      // Clear local state
       setConversations([])
 
+      // Redirect to new chat
       onSelectConversation(null)
     } catch (error) {
       console.error('Error deleting all conversations:', error)
@@ -114,18 +124,16 @@ export function Sidebar({
 
   const handleSearchChange = (searchValue: string) => {
     console.log('Search:', searchValue)
+    // TODO: Implement search functionality
   }
 
-  const handleSelectConversation = (index: number) => {
-    const conversation = conversations[index]
-    if (conversation) {
-      onSelectConversation(conversation.id)
-    }
+  const handleSelectConversation = (conversationId: string) => {
+    onSelectConversation(conversationId)
   }
 
   const last7Days = [
     'Crypto Lending App Name',
-    'Operator Grammer Types',
+    'Operator Grammar Types',
     'Min States For Binary DFA',
     'React State Management',
     'Next.js SSR vs SSG',
@@ -150,7 +158,7 @@ export function Sidebar({
           {/* Toggle button khi collapsed */}
           <button
             onClick={onToggle}
-            title="Mở sidebar"
+            title="Open sidebar"
             className="rounded-lg border border-gray-200 bg-gray-50 p-2 transition-colors hover:bg-gray-100"
           >
             <PanelLeft className="h-5 w-5 text-gray-700" />
@@ -173,12 +181,12 @@ export function Sidebar({
         </div>
       ) : (
         <>
-          {/* Toggle button khi expanded - ở góc trên bên phải của sidebar */}
+          {/* Toggle button khi expanded */}
           <div className="mb-4 flex items-center justify-between">
             <h1 className="text-lg font-bold text-zinc-800">CHAT A.I+</h1>
             <button
               onClick={onToggle}
-              title="Đóng sidebar"
+              title="Close sidebar"
               className="rounded-lg border border-gray-200 bg-gray-50 p-2 transition-colors hover:bg-gray-100"
             >
               <PanelLeft className="h-5 w-5 text-gray-700" />
@@ -189,17 +197,28 @@ export function Sidebar({
             onNewChat={handleNewChat}
             onSearchChange={handleSearchChange}
           />
+
           <div className="scrollbar-hide mt-6 flex-1 overflow-y-auto pr-2">
-            <SidebarConversations
-              conversations={conversations}
-              selectedConversationId={selectedConversationId}
-              onEdit={handleEditConversation}
-              onDelete={handleDeleteConversation}
-              onClearAll={handleClearAll}
-              onSelect={handleSelectConversation}
-            />
-            <SidebarLast7Days items={last7Days} />
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+              </div>
+            ) : (
+              <>
+                <SidebarConversations
+                  conversations={conversations}
+                  selectedConversationId={selectedConversationId}
+                  onEdit={handleEditConversation}
+                  onDelete={handleDeleteConversation}
+                  onClearAll={handleClearAll}
+                  onSelect={handleSelectConversation}
+                  onRefresh={loadConversations}
+                />
+                <SidebarLast7Days items={last7Days} />
+              </>
+            )}
           </div>
+
           <SidebarFooter />
         </>
       )}

@@ -1,48 +1,29 @@
 'use client'
 import { MainContent } from '@/components/modules/chat/organisms/MainContent'
 import { Sidebar } from '@/components/modules/chat/organisms/Sidebar'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { sendMessage } from '@/services/chatService'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/core/useAuth'
 
 export default function ConversationPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
   const [refreshConversations, setRefreshConversations] = useState<number>(0)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const router = useRouter()
 
-  useEffect(() => {
-    const checkToken = () => {
-      const token = localStorage.getItem('accessToken')
-      const loggedIn = !!token
-      setIsLoggedIn(loggedIn)
-
-      // Nếu chưa đăng nhập, chuyển về trang chủ
-      if (!loggedIn) {
-        router.replace('/')
-      }
-    }
-    checkToken()
-    window.addEventListener('storage', checkToken)
-    return () => window.removeEventListener('storage', checkToken)
-  }, [router])
-
   // Hàm xử lý tạo conversation mới bằng cách gửi tin nhắn đầu tiên
   const handleStartNewChat = async (firstMessage: string) => {
     try {
-      const token = localStorage.getItem('accessToken') || ''
-      const result = await sendMessage(token, firstMessage, null)
-      const conversationId =
-        result.conversation?.id ||
-        result.conversationId ||
-        result.conversation_id ||
-        result.id ||
-        'local-' + Date.now()
+      // Không cần truyền token, apiClient sẽ tự động handle
+      const result = await sendMessage(firstMessage, null)
+      const conversationId = result.conversation?.id || 'local-' + Date.now()
 
       // Chuyển đến trang conversation với ID
       router.push(`/conversation/${conversationId}`)
     } catch (error) {
       console.error('Error creating conversation:', error)
+      // Có thể thêm toast notification ở đây
     }
   }
 
@@ -56,8 +37,21 @@ export default function ConversationPage() {
     }
   }
 
-  // Nếu chưa đăng nhập, không hiển thị gì (sẽ redirect)
+  // Show loading khi đang check auth
+  if (authLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+          <p className="mt-2 text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Nếu chưa đăng nhập, redirect về trang chủ
   if (!isLoggedIn) {
+    router.replace('/')
     return (
       <div className="flex h-screen items-center justify-center bg-white">
         <div className="text-center">
@@ -73,7 +67,7 @@ export default function ConversationPage() {
       {/* Sidebar với toggle button */}
       <Sidebar
         onSelectConversation={handleSelectConversation}
-        selectedConversationId={null} // Không có conversation nào được select
+        selectedConversationId={null}
         refreshTrigger={refreshConversations}
         collapsed={!sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}

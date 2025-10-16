@@ -1,98 +1,108 @@
 'use client'
 import { MainContent } from '@/components/modules/chat/organisms/MainContent'
-import { useState, useEffect } from 'react'
-import { sendMessage } from '@/services/chatService'
+import { useEffect } from 'react'
+import { sendMessage, sendAnonymousMessage } from '@/services/chatService'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/core/useAuth'
+import { ApiMessage } from '@/contents/interfaces'
 
 export default function HomePage() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const { isLoggedIn, isLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    const checkToken = () => {
-      const token = localStorage.getItem('accessToken')
-      const loggedIn = !!token
-      setIsLoggedIn(loggedIn)
-      setIsLoading(false)
-      if (loggedIn) {
-        router.replace('/conversation')
-      }
+    // Auto redirect if logged in
+    if (!isLoading && isLoggedIn) {
+      router.replace('/conversation')
     }
-
-    checkToken()
-    window.addEventListener('storage', checkToken)
-    return () => window.removeEventListener('storage', checkToken)
-  }, [router])
+  }, [isLoggedIn, isLoading, router])
 
   const handleStartNewChat = async (firstMessage: string) => {
     try {
-      console.log('=== STARTING NEW CHAT ===')
-      console.log('First message:', firstMessage)
+      // Chỉ dùng sendMessage cho tất cả cases
+      const result = await sendMessage(firstMessage, null)
 
-      const token = localStorage.getItem('accessToken')
-      console.log('Has token:', !!token)
+      console.log('API Response:', result)
 
-      const result = await sendMessage(token || '', firstMessage, null)
-      console.log('Send message result:', result)
+      const conversationId = result.conversation?.id || `local-${Date.now()}`
 
-      const conversationId =
-        result.conversation?.id ||
-        result.conversationId ||
-        result.conversation_id ||
-        result.id ||
-        'local-' + Date.now()
+      // Tạo initial messages từ response
+      let initialMessages: ApiMessage[] = []
 
-      console.log('Conversation ID:', conversationId)
-
-      // Tạo messages array từ response
-      let initialMessages = []
-
-      if (result.messages && result.messages.length > 0) {
-        // Nếu API trả về messages array
+      if (result.messages && Array.isArray(result.messages)) {
+        // Nếu BE trả về messages array (format mới)
         initialMessages = result.messages
-        console.log('Using API messages:', initialMessages)
       } else {
-        // Nếu không có messages array, tạo manually từ input và response
-        const userMessage = {
-          role: 'user',
-          content: firstMessage,
-          createdAt: new Date().toISOString(),
-        }
+        // Fallback: tạo messages từ input và response
+        initialMessages = [
+          {
+            id: 'user-' + Date.now(),
+            conversationId: conversationId,
+            role: 'user',
+            content: firstMessage,
+            createdAt: new Date().toISOString(),
+          },
+        ]
 
-        const botResponse =
-          result.message || result.content || 'Hello! How can I help you?'
-        const botMessage = {
-          role: 'assistant',
-          content: botResponse,
-          createdAt: new Date().toISOString(),
+        // Add bot response nếu có
+        if (result.message) {
+          if (typeof result.message === 'object' && result.message.content) {
+            initialMessages.push(result.message)
+          } else if (typeof result.message === 'string') {
+            initialMessages.push({
+              id: 'bot-' + Date.now(),
+              conversationId: conversationId,
+              role: 'assistant',
+              content: result.message,
+              createdAt: new Date().toISOString(),
+            })
+          }
         }
-
-        initialMessages = [userMessage, botMessage]
-        console.log('Created manual messages:', initialMessages)
       }
 
-      // Luôn lưu vào sessionStorage (dù có login hay không)
-      console.log('Saving to sessionStorage:', initialMessages)
+      console.log('Initial messages:', initialMessages) // Debug log
+
+      // Save to sessionStorage
       sessionStorage.setItem('initialMessages', JSON.stringify(initialMessages))
 
-      // Verify sessionStorage
-      const saved = sessionStorage.getItem('initialMessages')
-      console.log('Verified sessionStorage save:', !!saved)
-
-      // Lưu anonymous conversation ID nếu chưa đăng nhập
-      if (!token) {
+      // Save anonymous conversation ID if not logged in
+      if (!isLoggedIn) {
         localStorage.setItem('anonymousConversationId', conversationId)
-        console.log('Saved anonymous conversation ID')
       }
 
-      console.log('Redirecting to conversation...')
       router.push(`/conversation/${conversationId}`)
     } catch (error) {
       console.error('Error creating conversation:', error)
+
+      // Fallback to local conversation
+      const localId = 'local-' + Date.now()
+      const fallbackMessages: ApiMessage[] = [
+        {
+          id: 'user-' + Date.now(),
+          conversationId: localId,
+          role: 'user',
+          content: firstMessage,
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 'bot-' + Date.now(),
+          conversationId: localId,
+          role: 'assistant',
+          content:
+            "Sorry, I'm having trouble connecting. Please try again later.",
+          createdAt: new Date().toISOString(),
+        },
+      ]
+
+      sessionStorage.setItem(
+        'initialMessages',
+        JSON.stringify(fallbackMessages)
+      )
+      router.push(`/conversation/${localId}`)
     }
   }
 
+  // Loading state
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-white">
@@ -104,16 +114,25 @@ export default function HomePage() {
     )
   }
 
-  if (!isLoggedIn) {
+  // Redirecting state
+  if (isLoggedIn) {
     return (
-      <div className="h-screen bg-white">
-        <MainContent
-          onStartNewChat={handleStartNewChat}
-          isLoggedIn={isLoggedIn}
-        />
+      <div className="flex h-screen items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+          <p className="mt-2 text-gray-600">Redirecting...</p>
+        </div>
       </div>
     )
   }
 
-  return null
+  // Main content for non-logged in users
+  return (
+    <div className="h-screen bg-white">
+      <MainContent
+        onStartNewChat={handleStartNewChat}
+        isLoggedIn={isLoggedIn}
+      />
+    </div>
+  )
 }

@@ -1,29 +1,24 @@
 import type { IRegister, ILogin, LoginResponse } from '@/contents/interfaces'
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1'
+import { apiClient } from './apiClient'
 
-export async function register(payload: IRegister) {
-  const res = await fetch(`${API_BASE_URL}/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  if (!res.ok) {
-    const error = await res.json()
-    throw new Error(error.message || 'Register failed')
-  }
-  return res.json()
+export async function register(payload: IRegister): Promise<LoginResponse> {
+  return apiClient.post<LoginResponse>('/auth/register', payload)
 }
 
 export async function login(payload: ILogin): Promise<LoginResponse> {
-  const res = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  if (!res.ok) {
-    const error = await res.json()
-    throw new Error(error.message || 'Login failed')
-  }
-  return res.json()
+  return apiClient.post<LoginResponse>('/auth/login', payload)
+}
+
+export async function refreshToken(
+  refreshToken: string
+): Promise<LoginResponse> {
+  return apiClient.post<LoginResponse>('/auth/refresh-token', { refreshToken })
+}
+
+export async function logout(): Promise<{ message: string }> {
+  return apiClient.post<{ message: string }>('/auth/logout')
+}
+
+export async function getCurrentUser(): Promise<{ user: object }> {
+  return apiClient.get<{ user: object }>('/auth/me')
 }

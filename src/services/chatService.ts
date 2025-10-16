@@ -1,141 +1,104 @@
-import { ApiMessage } from '@/contents/interfaces'
+import {
+  ApiMessage,
+  Conversation,
+  SendMessageResponse,
+  ApiError,
+  MessageResponse,
+  ApiResponse,
+} from '@/contents/interfaces'
+import { apiClient } from './apiClient'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
-
-export interface Conversation {
-  id: string
-  title: string
-}
-
-export async function fetchConversations(
-  token: string
-): Promise<Conversation[]> {
-  const res = await fetch(`${API_BASE_URL}/chat/conversations`, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  })
-
-  if (res.status === 404) {
-    return []
-  }
-
-  if (!res.ok) {
-    const errorText = await res.text()
-    throw new Error(
-      `Failed to fetch conversations: ${res.status} - ${errorText}`
-    )
-  }
-
-  const data = await res.json()
-
-  if (Array.isArray(data)) {
-    return data
-  } else if (Array.isArray(data.data)) {
-    return data.data
-  } else {
-    return []
-  }
-}
-
-export const sendMessage = async (
-  token: string,
-  content: string,
-  conversationId: string | null = null
-) => {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  }
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-
-  const response = await fetch(`${API_BASE_URL}/chat/message`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      content,
-      conversationId,
-    }),
-  })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`Failed to send message: ${response.status} - ${errorText}`)
-  }
-
-  const data = await response.json()
-  return data
-}
-
-export const fetchMessages = async (
-  token: string,
-  conversationId: string
-): Promise<ApiMessage[]> => {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  }
-
+export async function fetchConversations(): Promise<Conversation[]> {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/chat/conversations/${conversationId}`,
-      {
-        headers,
-      }
-    )
+    const data = await apiClient.get<
+      Conversation[] | ApiResponse<Conversation[]>
+    >('/chat/conversations')
 
-    if (response.status === 404) {
+    if (Array.isArray(data)) {
+      return data
+    } else if (
+      data &&
+      Array.isArray((data as ApiResponse<Conversation[]>).data)
+    ) {
+      return (data as ApiResponse<Conversation[]>).data
+    }
+
+    return []
+  } catch (error) {
+    const apiError = error as ApiError
+    // Nếu 404, trả về array rỗng
+    if (apiError.status === 404) {
       return []
     }
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch messages: ${response.status}`)
-    }
-
-    const data = await response.json()
-    return Array.isArray(data) ? data : data.data || []
-  } catch (error) {
-    return []
+    console.error('Error fetching conversations:', error)
+    throw error
   }
 }
 
-export const deleteConversation = async (
-  token: string,
-  conversationId: string
-) => {
-  const response = await fetch(
-    `${API_BASE_URL}/chat/conversations/${conversationId}`,
-    {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  )
-
-  if (!response.ok) {
-    throw new Error('Failed to delete conversation')
-  }
-
-  return response.json()
-}
-
-export const deleteAllConversations = async (token: string) => {
-  const response = await fetch(`${API_BASE_URL}/chat/conversations`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+export async function sendAnonymousMessage(
+  content: string
+): Promise<SendMessageResponse> {
+  return apiClient.post<SendMessageResponse>('/chat/anonymous', {
+    content,
   })
+}
 
-  if (!response.ok) {
-    throw new Error('Failed to delete all conversations')
+export async function sendMessage(
+  content: string,
+  conversationId: string | null = null
+): Promise<SendMessageResponse> {
+  return apiClient.post<SendMessageResponse>('/chat/message', {
+    content,
+    conversationId,
+  })
+}
+
+export async function fetchMessages(
+  conversationId: string
+): Promise<ApiMessage[]> {
+  try {
+    const data = await apiClient.get<ApiMessage[] | ApiResponse<ApiMessage[]>>(
+      `/chat/conversations/${conversationId}`
+    )
+
+    if (Array.isArray(data)) {
+      return data
+    } else if (
+      data &&
+      Array.isArray((data as ApiResponse<ApiMessage[]>).data)
+    ) {
+      return (data as ApiResponse<ApiMessage[]>).data
+    }
+
+    return []
+  } catch (error) {
+    const apiError = error as ApiError
+    // Nếu 404, trả về array rỗng
+    if (apiError.status === 404) {
+      return []
+    }
+    console.error('Error fetching messages:', error)
+    throw error
   }
+}
 
-  return response.json()
+export async function deleteConversation(
+  conversationId: string
+): Promise<MessageResponse> {
+  return apiClient.delete<MessageResponse>(
+    `/chat/conversations/${conversationId}`
+  )
+}
+
+export async function deleteAllConversations(): Promise<MessageResponse> {
+  return apiClient.delete<MessageResponse>('/chat/conversations')
+}
+
+export async function updateConversationTitle(
+  conversationId: string,
+  title: string
+): Promise<Conversation> {
+  return apiClient.put<Conversation>(`/chat/conversations/${conversationId}`, {
+    title,
+  })
 }

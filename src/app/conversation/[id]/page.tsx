@@ -5,34 +5,25 @@ import { MainContent2 } from '@/components/modules/chat/organisms/MainContent2'
 import { ApiMessage } from '@/contents/interfaces'
 import { useParams, useRouter } from 'next/navigation'
 import { fetchMessages } from '@/services/chatService'
+import { useAuth } from '@/hooks/core/useAuth'
 
 export default function ConversationDetailPage() {
   const params = useParams()
   const router = useRouter()
   const conversationId = params.id as string
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
 
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
   const [refreshConversations, setRefreshConversations] = useState<number>(0)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [initialMessages, setInitialMessages] = useState<ApiMessage[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const checkToken = () => {
-      const token = localStorage.getItem('accessToken')
-      setIsLoggedIn(!!token)
-    }
-    checkToken()
-    window.addEventListener('storage', checkToken)
-    return () => window.removeEventListener('storage', checkToken)
-  }, [])
-
-  useEffect(() => {
     const loadInitialMessages = async () => {
       if (!conversationId) return
 
-      const token = localStorage.getItem('accessToken')
-      if (!token) {
+      // Nếu chưa login, thử lấy từ sessionStorage
+      if (!isLoggedIn) {
         const savedMessages = sessionStorage.getItem('initialMessages')
         if (savedMessages) {
           try {
@@ -49,8 +40,9 @@ export default function ConversationDetailPage() {
         return
       }
 
+      // Nếu đã login, gọi API (apiClient sẽ tự động handle token)
       try {
-        const messages = await fetchMessages(token, conversationId)
+        const messages = await fetchMessages(conversationId)
         if (messages && messages.length > 0) {
           setInitialMessages(messages)
           setLoading(false)
@@ -58,25 +50,29 @@ export default function ConversationDetailPage() {
         }
       } catch (error) {
         console.error('Error loading messages from API:', error)
-      }
-
-      const savedMessages = sessionStorage.getItem('initialMessages')
-      if (savedMessages) {
-        try {
-          const messages = JSON.parse(savedMessages)
-          setInitialMessages(messages)
-        } catch (e) {
-          console.error('Error parsing saved messages:', e)
+        // Nếu API fail, fallback to sessionStorage
+        const savedMessages = sessionStorage.getItem('initialMessages')
+        if (savedMessages) {
+          try {
+            const messages = JSON.parse(savedMessages)
+            setInitialMessages(messages)
+          } catch (e) {
+            console.error('Error parsing saved messages:', e)
+            setInitialMessages([])
+          }
+        } else {
           setInitialMessages([])
         }
-      } else {
-        setInitialMessages([])
       }
+
       setLoading(false)
     }
 
-    loadInitialMessages()
-  }, [conversationId])
+    // Chỉ load khi auth check xong
+    if (!authLoading) {
+      loadInitialMessages()
+    }
+  }, [conversationId, isLoggedIn, authLoading])
 
   const handleSelectConversation = (id: string | null) => {
     if (id === null) {
@@ -86,12 +82,17 @@ export default function ConversationDetailPage() {
     }
   }
 
-  if (loading) {
+  // Show loading khi đang check auth hoặc load messages
+  if (authLoading || loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-white">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="mt-2 text-gray-600">Loading conversation...</p>
+          <p className="mt-2 text-gray-600">
+            {authLoading
+              ? 'Checking authentication...'
+              : 'Loading conversation...'}
+          </p>
         </div>
       </div>
     )

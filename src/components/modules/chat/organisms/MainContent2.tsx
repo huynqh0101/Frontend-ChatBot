@@ -2,8 +2,9 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Send, Bot } from 'lucide-react'
 import { MessageBubble, type Message } from '../molecules/MessageBubble'
-import { sendMessage } from '@/services/chatService'
+import { sendMessage, sendAnonymousMessage } from '@/services/chatService'
 import { ApiMessage } from '@/contents/interfaces'
+import { useAuth } from '@/hooks/core/useAuth'
 
 interface MainContent2Props {
   conversationId: string
@@ -21,11 +22,12 @@ export function MainContent2({
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const { isLoggedIn } = useAuth()
 
   const mapApiMessages = (msgs: ApiMessage[]): Message[] =>
     msgs.map((msg) => ({
       sender: msg.role === 'user' ? 'user' : 'bot',
-      name: msg.role === 'user' ? 'Andrew Neilson' : 'CHAT A.I+',
+      name: msg.role === 'user' ? 'Andrew Nelson' : 'CHAT A.I+',
       avatar:
         msg.role === 'user'
           ? 'https://placehold.co/40x40/E8E8E8/424242?text=AN'
@@ -37,10 +39,10 @@ export function MainContent2({
     if (initialMessages && initialMessages.length > 0) {
       setMessages(mapApiMessages(initialMessages))
     } else {
-      if (messages.length === 0) {
-        setMessages([])
-      }
+      // Reset messages if no initial messages
+      setMessages([])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialMessages])
 
   useEffect(() => {
@@ -51,43 +53,59 @@ export function MainContent2({
     if (!inputValue.trim()) return
 
     const userMessage = inputValue.trim()
-    const token = localStorage.getItem('accessToken') || ''
     setInputValue('')
     setIsTyping(true)
 
     const newUserMessage: Message = {
       sender: 'user',
-      name: 'Andrew Neilson',
+      name: 'Andrew Nelson',
       avatar: 'https://placehold.co/40x40/E8E8E8/424242?text=AN',
       text: userMessage,
     }
     setMessages((prev) => [...prev, newUserMessage])
 
     try {
-      const result = await sendMessage(token, userMessage, conversationId)
+      // Chỉ dùng sendMessage cho cả anonymous và authenticated
+      const result = await sendMessage(userMessage, conversationId)
 
-      if (result.messages && result.messages.length > 0) {
+      console.log('API Response:', result)
+
+      if (
+        result.messages &&
+        Array.isArray(result.messages) &&
+        result.messages.length > 0
+      ) {
+        // Replace toàn bộ messages với data từ backend
         setMessages(mapApiMessages(result.messages))
-      } else if (result.message || result.content) {
-        const botMessage: Message = {
-          sender: 'bot',
-          name: 'CHAT A.I+',
-          avatar: 'https://placehold.co/40x40/171717/FFFFFF?text=A.I',
-          text: result.message || result.content || 'No response received',
-        }
-        setMessages((prev) => [...prev, botMessage])
       } else {
+        // Fallback: thêm bot response manually
+        let botResponseText = ''
+
+        if (result.message) {
+          if (typeof result.message === 'object' && result.message.content) {
+            botResponseText = result.message.content
+          } else if (typeof result.message === 'string') {
+            botResponseText = result.message
+          }
+        }
+
+        if (!botResponseText) {
+          botResponseText =
+            'I received your message but had trouble responding. Please try again.'
+        }
+
         const botMessage: Message = {
           sender: 'bot',
           name: 'CHAT A.I+',
           avatar: 'https://placehold.co/40x40/171717/FFFFFF?text=A.I',
-          text: 'I received your message but had trouble responding. Please try again.',
+          text: botResponseText,
         }
         setMessages((prev) => [...prev, botMessage])
       }
 
-      if (token) {
-        onNewMessage?.()
+      // Trigger refresh conversations list nếu có callback và user đã login
+      if (isLoggedIn && onNewMessage) {
+        onNewMessage()
       }
     } catch (error) {
       console.error('Error sending message:', error)
