@@ -1,5 +1,5 @@
 import { Trash2 } from 'lucide-react'
-import ConversationItem from './ConversationItem'
+import ConversationItem from '@/components/modules/chat/molecules/ConversationItem'
 import { Conversation } from '@/contents/interfaces'
 import {
   deleteConversation,

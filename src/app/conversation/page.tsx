@@ -1,6 +1,6 @@
 'use client'
 import { MainContent } from '@/components/modules/chat/organisms/MainContent'
-import { Sidebar } from '@/components/modules/chat/organisms/Sidebar'
+import { Sidebar } from '@/components/layout/organisms/Sidebar'
 import { useState } from 'react'
 import { sendMessage } from '@/services/chatService'
 import { useRouter } from 'next/navigation'

@@ -1,4 +1,4 @@
-import ConversationItem from './ConversationItem'
+import ConversationItem from '@/components/modules/chat/molecules/ConversationItem'
 
 export default function SidebarLast7Days({ items }: { items: string[] }) {
   return (

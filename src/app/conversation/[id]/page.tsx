@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Sidebar } from '@/components/modules/chat/organisms/Sidebar'
+import { Sidebar } from '@/components/layout/organisms/Sidebar'
 import { MainContent2 } from '@/components/modules/chat/organisms/MainContent2'
 import { ApiMessage } from '@/contents/interfaces'
 import { useParams, useRouter } from 'next/navigation'

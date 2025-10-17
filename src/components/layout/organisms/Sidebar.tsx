@@ -159,7 +159,7 @@ export function Sidebar({
           <button
             onClick={onToggle}
             title="Open sidebar"
-            className="rounded-lg border border-gray-200 bg-gray-50 p-2 transition-colors hover:bg-gray-100"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
           >
             <PanelLeft className="h-5 w-5 text-gray-700" />
           </button>
@@ -187,7 +187,7 @@ export function Sidebar({
             <button
               onClick={onToggle}
               title="Close sidebar"
-              className="rounded-lg border border-gray-200 bg-gray-50 p-2 transition-colors hover:bg-gray-100"
+              className="rounded-lg p-2 transition-colors hover:bg-gray-100"
             >
               <PanelLeft className="h-5 w-5 text-gray-700" />
             </button>
