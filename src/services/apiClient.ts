@@ -10,7 +10,6 @@ const PUBLIC_ENDPOINTS = [
   '/auth/refresh-token',
   '/auth/forgot-password',
   '/auth/reset-password',
-  // KHÔNG có '/chat/message' ở đây
 ]
 
 class ApiClient {
@@ -22,14 +21,12 @@ class ApiClient {
     this.baseURL = baseURL
   }
 
-  // Kiểm tra xem endpoint có cần authentication không
   private isPublicEndpoint(endpoint: string): boolean {
     return PUBLIC_ENDPOINTS.some((publicPath) =>
       endpoint.startsWith(publicPath)
     )
   }
 
-  // Kiểm tra xem có nên retry với refresh token không
   private shouldRetryWithRefresh(endpoint: string, status: number): boolean {
     return (
       status === 401 &&
@@ -61,11 +58,22 @@ class ApiClient {
 
       const data: LoginResponse = await response.json()
 
-      tokenUtils.setTokens({
-        accessToken: data.token,
-        refreshToken: data.refreshToken,
-        user: data.user,
-      })
+      // Lưu token với rememberMe = true để giữ được thời gian refresh
+      tokenUtils.setTokens(
+        {
+          accessToken: data.token,
+          refreshToken: data.refreshToken,
+          user: data.user,
+        },
+        { rememberMe: true }
+      )
+
+      // Dispatch custom event để useTokenRefresh biết token đã được refresh
+      window.dispatchEvent(
+        new CustomEvent('tokenRefreshed', {
+          detail: { token: data.token },
+        })
+      )
 
       return data.token
     } catch (error) {
@@ -96,7 +104,7 @@ class ApiClient {
   }
 
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    // Chỉ thêm token nếu không phải public endpoint
+    // Lấy token từ tokenUtils
     if (!this.isPublicEndpoint(endpoint)) {
       const tokens = tokenUtils.getTokens()
       if (tokens?.accessToken) {
@@ -111,7 +119,6 @@ class ApiClient {
       options.headers = {}
     }
 
-    // Chỉ thêm Content-Type nếu có body
     if (
       options.body &&
       !Object.hasOwnProperty.call(options.headers, 'Content-Type')
@@ -123,7 +130,6 @@ class ApiClient {
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, options)
 
-      // Chỉ retry với refresh token nếu cần thiết
       if (this.shouldRetryWithRefresh(endpoint, response.status)) {
         if (this.isRefreshing) {
           return new Promise<T>((resolve, reject) => {

@@ -30,61 +30,69 @@ export const useTokenStorage = () => {
         expires: rememberMe ? 30 : undefined,
       }
 
-      // Lưu vào cookies
+      // Chỉ lưu tokens vào cookies (không lưu user vì quá lớn)
       Cookies.set('accessToken', tokens.accessToken, cookieOptions)
       Cookies.set('refreshToken', tokens.refreshToken, cookieOptions)
-      Cookies.set('user', JSON.stringify(tokens.user), cookieOptions)
 
-      // Lưu vào localStorage/sessionStorage
+      // Lưu user vào localStorage/sessionStorage
+      const userString = JSON.stringify(tokens.user)
       if (rememberMe) {
         localStorage.setItem('accessToken', tokens.accessToken)
         localStorage.setItem('refreshToken', tokens.refreshToken)
-        localStorage.setItem('user', JSON.stringify(tokens.user))
+        localStorage.setItem('user', userString)
+        localStorage.setItem('rememberMe', 'true')
       } else {
         sessionStorage.setItem('accessToken', tokens.accessToken)
         sessionStorage.setItem('refreshToken', tokens.refreshToken)
-        sessionStorage.setItem('user', JSON.stringify(tokens.user))
+        sessionStorage.setItem('user', userString)
       }
 
-      console.log('Tokens and user stored successfully', { rememberMe, secure })
+      console.log('Tokens stored successfully', { rememberMe, secure })
     },
     []
   )
 
   const getTokens = useCallback((): TokenData | null => {
-    // Cookies
-    const cookieToken = Cookies.get('accessToken')
-    if (cookieToken) {
+    // Ưu tiên cookies cho tokens
+    const cookieAccessToken = Cookies.get('accessToken')
+    const cookieRefreshToken = Cookies.get('refreshToken')
+
+    // Kiểm tra localStorage (rememberMe)
+    const localAccessToken = localStorage.getItem('accessToken')
+    const localRefreshToken = localStorage.getItem('refreshToken')
+    const localUser = localStorage.getItem('user')
+
+    // Kiểm tra sessionStorage
+    const sessionAccessToken = sessionStorage.getItem('accessToken')
+    const sessionRefreshToken = sessionStorage.getItem('refreshToken')
+    const sessionUser = sessionStorage.getItem('user')
+
+    // Cookies có token
+    if (cookieAccessToken && cookieRefreshToken) {
+      // Lấy user từ localStorage hoặc sessionStorage
+      const userStr = localUser || sessionUser
       return {
-        accessToken: cookieToken,
-        refreshToken: Cookies.get('refreshToken') || '',
-        user: Cookies.get('user')
-          ? JSON.parse(Cookies.get('user') as string)
-          : {},
+        accessToken: cookieAccessToken,
+        refreshToken: cookieRefreshToken,
+        user: userStr ? JSON.parse(userStr) : {},
       }
     }
 
-    // localStorage
-    const localToken = localStorage.getItem('accessToken')
-    if (localToken) {
+    // localStorage có token (rememberMe)
+    if (localAccessToken && localRefreshToken) {
       return {
-        accessToken: localToken,
-        refreshToken: localStorage.getItem('refreshToken') || '',
-        user: localStorage.getItem('user')
-          ? JSON.parse(localStorage.getItem('user') as string)
-          : {},
+        accessToken: localAccessToken,
+        refreshToken: localRefreshToken,
+        user: localUser ? JSON.parse(localUser) : {},
       }
     }
 
-    // sessionStorage
-    const sessionToken = sessionStorage.getItem('accessToken')
-    if (sessionToken) {
+    // sessionStorage có token
+    if (sessionAccessToken && sessionRefreshToken) {
       return {
-        accessToken: sessionToken,
-        refreshToken: sessionStorage.getItem('refreshToken') || '',
-        user: sessionStorage.getItem('user')
-          ? JSON.parse(sessionStorage.getItem('user') as string)
-          : {},
+        accessToken: sessionAccessToken,
+        refreshToken: sessionRefreshToken,
+        user: sessionUser ? JSON.parse(sessionUser) : {},
       }
     }
 
@@ -92,19 +100,22 @@ export const useTokenStorage = () => {
   }, [])
 
   const clearTokens = useCallback(() => {
+    // Clear cookies
     Cookies.remove('accessToken')
     Cookies.remove('refreshToken')
-    Cookies.remove('user')
 
+    // Clear localStorage
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('user')
+    localStorage.removeItem('rememberMe')
 
+    // Clear sessionStorage
     sessionStorage.removeItem('accessToken')
     sessionStorage.removeItem('refreshToken')
     sessionStorage.removeItem('user')
 
-    console.log('All tokens and user cleared successfully')
+    console.log('All tokens cleared successfully')
   }, [])
 
   const hasTokens = useCallback((): boolean => {
