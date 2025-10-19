@@ -17,12 +17,14 @@ export default function ConversationDetailPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [initialMessages, setInitialMessages] = useState<ApiMessage[]>([])
   const [loading, setLoading] = useState(true)
+  const [currentConversationExists, setCurrentConversationExists] =
+    useState(true)
+  const [isDeletingCurrentConversation, setIsDeletingCurrentConversation] =
+    useState(false)
 
   useEffect(() => {
     const loadInitialMessages = async () => {
       if (!conversationId) return
-
-      // Nếu chưa login, thử lấy từ sessionStorage
       if (!isLoggedIn) {
         const savedMessages = sessionStorage.getItem('initialMessages')
         if (savedMessages) {
@@ -30,7 +32,6 @@ export default function ConversationDetailPage() {
             const messages = JSON.parse(savedMessages)
             setInitialMessages(messages)
           } catch (e) {
-            console.error('Error parsing saved messages:', e)
             setInitialMessages([])
           }
         } else {
@@ -39,8 +40,6 @@ export default function ConversationDetailPage() {
         setLoading(false)
         return
       }
-
-      // Nếu đã login, gọi API (apiClient sẽ tự động handle token)
       try {
         const messages = await fetchMessages(conversationId)
         if (messages && messages.length > 0) {
@@ -49,40 +48,46 @@ export default function ConversationDetailPage() {
           return
         }
       } catch (error) {
-        console.error('Error loading messages from API:', error)
-        // Nếu API fail, fallback to sessionStorage
         const savedMessages = sessionStorage.getItem('initialMessages')
         if (savedMessages) {
           try {
             const messages = JSON.parse(savedMessages)
             setInitialMessages(messages)
           } catch (e) {
-            console.error('Error parsing saved messages:', e)
             setInitialMessages([])
           }
         } else {
           setInitialMessages([])
         }
       }
-
       setLoading(false)
     }
-
-    // Chỉ load khi auth check xong
     if (!authLoading) {
       loadInitialMessages()
     }
   }, [conversationId, isLoggedIn, authLoading])
 
   const handleSelectConversation = (id: string | null) => {
+    if (isDeletingCurrentConversation) return
     if (id === null) {
-      router.push('/')
+      router.replace('/conversation')
     } else if (id !== conversationId) {
       router.push(`/conversation/${id}`)
     }
   }
 
-  // Show loading khi đang check auth hoặc load messages
+  const handleConversationDeleted = (deletedId: string) => {
+    if (deletedId === conversationId) {
+      setIsDeletingCurrentConversation(true)
+      setCurrentConversationExists(false)
+      setTimeout(() => {
+        router.replace('/conversation')
+      }, 300)
+    } else {
+      setRefreshConversations(Date.now())
+    }
+  }
+
   if (authLoading || loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-white">
@@ -107,15 +112,27 @@ export default function ConversationDetailPage() {
           refreshTrigger={refreshConversations}
           collapsed={!sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
+          onConversationDeleted={handleConversationDeleted}
         />
       )}
-
       <div className="flex-1">
-        <MainContent2
-          conversationId={conversationId}
-          initialMessages={initialMessages}
-          onNewMessage={() => setRefreshConversations(Date.now())}
-        />
+        {currentConversationExists && !isDeletingCurrentConversation ? (
+          <MainContent2
+            conversationId={conversationId}
+            initialMessages={initialMessages}
+            onNewMessage={() => setRefreshConversations(Date.now())}
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center bg-gray-50">
+            <div className="text-center">
+              <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+              <p className="mt-4 text-gray-600">Conversation deleted</p>
+              <p className="mt-1 text-sm text-gray-400">
+                Redirecting to new chat...
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

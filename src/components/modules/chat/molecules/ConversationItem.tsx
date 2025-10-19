@@ -29,8 +29,25 @@ export default function ConversationItem({
     }
   }, [editing])
 
-  const handleEdit = () => {
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     setEditing(true)
+  }
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onDelete?.()
+  }
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (editing) {
+      e.preventDefault()
+      return
+    }
+    e.preventDefault()
+    onClick?.(conversationId)
   }
 
   const handleSave = () => {
@@ -42,13 +59,9 @@ export default function ConversationItem({
 
   return (
     <li className="group relative">
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault()
-          onClick?.(conversationId)
-        }}
-        className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 transition-colors duration-200 ${
+      <div
+        onClick={handleClick}
+        className={`flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 transition-colors duration-200 ${
           isSelected
             ? 'bg-indigo-100 text-indigo-800'
             : 'text-zinc-600 hover:bg-indigo-50 hover:text-indigo-700'
@@ -75,6 +88,7 @@ export default function ConversationItem({
                   setValue(text)
                 }
               }}
+              onClick={(e) => e.stopPropagation()}
               className="truncate px-1 py-0.5 text-sm font-medium outline-none focus:outline-none"
               style={{ maxWidth: 160 }}
             />
@@ -82,12 +96,14 @@ export default function ConversationItem({
             <span className="truncate text-sm font-medium">{text}</span>
           )}
         </div>
+
         <div className="relative z-10 flex flex-shrink-0 items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
           {editing ? (
             <button
               className="rounded p-1 text-zinc-500 hover:text-green-600"
               onMouseDown={(e) => {
                 e.preventDefault()
+                e.stopPropagation()
                 handleSave()
               }}
             >
@@ -96,25 +112,19 @@ export default function ConversationItem({
           ) : (
             <button
               className="rounded p-1 text-zinc-500 hover:text-zinc-900"
-              onClick={(e) => {
-                e.preventDefault()
-                handleEdit()
-              }}
+              onClick={handleEdit}
             >
               <Pencil className="h-4 w-4" />
             </button>
           )}
           <button
             className="rounded p-1 text-zinc-500 hover:text-red-600"
-            onClick={(e) => {
-              e.preventDefault()
-              onDelete?.()
-            }}
+            onClick={handleDelete}
           >
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
-      </a>
+      </div>
     </li>
   )
 }

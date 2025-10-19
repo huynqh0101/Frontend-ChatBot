@@ -28,55 +28,39 @@ export default function SidebarConversations({
 }: SidebarConversationsProps) {
   const handleEdit = async (conversationId: string, newName: string) => {
     try {
-      // Gọi API để update title (apiClient sẽ tự động handle auth)
       await updateConversationTitle(conversationId, newName)
-
-      // Gọi callback để update UI
       onEdit(conversationId, newName)
-
-      // Refresh danh sách conversations
       onRefresh()
     } catch (error) {
       console.error('Error updating conversation title:', error)
-      // Có thể thêm toast notification ở đây
     }
   }
 
   const handleDelete = async (conversationId: string) => {
     try {
-      // Gọi API để delete conversation (apiClient sẽ tự động handle auth)
+      const confirmed = window.confirm(
+        'Are you sure you want to delete this conversation?'
+      )
+      if (!confirmed) return
       await deleteConversation(conversationId)
-
-      // Gọi callback để update UI
       onDelete(conversationId)
-
-      // Refresh danh sách conversations
-      onRefresh()
     } catch (error) {
       console.error('Error deleting conversation:', error)
-      // Có thể thêm toast notification ở đây
+      alert('Failed to delete conversation')
     }
   }
 
   const handleClearAll = async () => {
     try {
-      // Confirm trước khi xóa tất cả
       const confirmed = window.confirm(
         'Are you sure you want to delete all conversations? This action cannot be undone.'
       )
       if (!confirmed) return
 
-      // Gọi API để delete tất cả conversations (apiClient sẽ tự động handle auth)
       await deleteAllConversations()
-
-      // Gọi callback để update UI
       onClearAll()
-
-      // Refresh danh sách conversations
-      onRefresh()
     } catch (error) {
       console.error('Error clearing all conversations:', error)
-      // Có thể thêm toast notification ở đây
     }
   }
 
