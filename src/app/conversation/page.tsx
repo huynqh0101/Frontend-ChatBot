@@ -1,7 +1,7 @@
 'use client'
 import { MainContent } from '@/components/modules/chat/organisms/MainContent'
 import { Sidebar } from '@/components/layout/organisms/Sidebar'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { sendMessage } from '@/services/chatService'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/core/useAuth'
@@ -11,6 +11,12 @@ export default function ConversationPage() {
   const [refreshConversations, setRefreshConversations] = useState<number>(0)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const router = useRouter()
+
+  useEffect(() => {
+    if (!authLoading && !isLoggedIn) {
+      router.replace('/')
+    }
+  }, [authLoading, isLoggedIn, router])
 
   const handleStartNewChat = async (firstMessage: string) => {
     try {
@@ -45,7 +51,6 @@ export default function ConversationPage() {
   }
 
   if (!isLoggedIn) {
-    router.replace('/')
     return (
       <div className="flex h-screen items-center justify-center bg-white">
         <div className="text-center">

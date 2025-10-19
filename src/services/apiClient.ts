@@ -58,7 +58,6 @@ class ApiClient {
 
       const data: LoginResponse = await response.json()
 
-      // Lưu token với rememberMe = true để giữ được thời gian refresh
       tokenUtils.setTokens(
         {
           accessToken: data.token,
@@ -68,7 +67,6 @@ class ApiClient {
         { rememberMe: true }
       )
 
-      // Dispatch custom event để useTokenRefresh biết token đã được refresh
       window.dispatchEvent(
         new CustomEvent('tokenRefreshed', {
           detail: { token: data.token },
