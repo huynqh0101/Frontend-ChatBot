@@ -80,7 +80,7 @@ export default function SidebarHeader({
 
   return (
     <div>
-      <div className="mt-6 flex w-full items-center gap-3">
+      <div className="mt-2 flex w-full items-center gap-3">
         <button
           className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#5561F7] py-2.5 text-white transition-all duration-150 hover:scale-[1.02] hover:bg-[#4854e0]"
           onClick={onNewChat}

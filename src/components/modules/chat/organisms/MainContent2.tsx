@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Send, Bot } from 'lucide-react'
 import { MessageBubble, type Message } from '../molecules/MessageBubble'
-import { sendMessage, sendAnonymousMessage } from '@/services/chatService'
+import { sendMessage } from '@/services/chatService'
 import { ApiMessage } from '@/contents/interfaces'
 import { useAuth } from '@/hooks/core/useAuth'
 
@@ -130,7 +130,7 @@ export function MainContent2({
   }
 
   return (
-    <main className="flex h-screen flex-col bg-gradient-to-br from-gray-50 via-white to-blue-50">
+    <main className="flex h-screen flex-col bg-gray-100">
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="mx-auto max-w-4xl space-y-6">
@@ -166,7 +166,7 @@ export function MainContent2({
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-gray-200 bg-white/80 p-4 backdrop-blur-sm">
+      <div className="bg-gray-100">
         <div className="mx-auto max-w-4xl">
           <div className="relative flex items-end gap-3">
             <div className="relative flex-1">

@@ -146,7 +146,7 @@ export function MainContent({
         </div>
 
         {/* Input bar - cùng container */}
-        <div className="mx-auto mt-8 w-full max-w-3xl">
+        <div className="mx-auto mt-8 w-full max-w-3xl bg-gray-100">
           <div className="relative">
             <input
               type="text"

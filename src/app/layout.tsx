@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import '@/styles/globals.css'
-import { TokenRefreshProvider } from '@/components/providers/TokenRefreshProvider'
+import { TokenRefreshProvider } from '@/providers/TokenRefreshProvider'
+import { ThemeProvider } from '@/providers/ThemeProvider'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,7 +30,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <TokenRefreshProvider>{children}</TokenRefreshProvider>
+        <ThemeProvider>
+          <TokenRefreshProvider>{children}</TokenRefreshProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

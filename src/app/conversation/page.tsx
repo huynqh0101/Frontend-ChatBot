@@ -62,7 +62,7 @@ export default function ConversationPage() {
   }
 
   return (
-    <div className="relative flex h-screen bg-white">
+    <div className="relative flex h-screen bg-gray-100">
       <Sidebar
         onSelectConversation={handleSelectConversation}
         selectedConversationId={null}
