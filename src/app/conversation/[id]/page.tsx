@@ -6,6 +6,7 @@ import { ApiMessage } from '@/contents/interfaces'
 import { useParams, useRouter } from 'next/navigation'
 import { fetchMessages } from '@/services/chatService'
 import { useAuth } from '@/hooks/core/useAuth'
+import { Loading } from '@/components/base/loading/Loading'
 
 export default function ConversationDetailPage() {
   const params = useParams()
@@ -90,16 +91,13 @@ export default function ConversationDetailPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-100 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent dark:border-blue-400"></div>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">
-            {authLoading
-              ? 'Checking authentication...'
-              : 'Loading conversation...'}
-          </p>
-        </div>
-      </div>
+      <Loading
+        variant="circle"
+        size={48}
+        text={
+          authLoading ? 'Checking authentication...' : 'Loading conversation...'
+        }
+      />
     )
   }
 
@@ -123,17 +121,14 @@ export default function ConversationDetailPage() {
             onNewMessage={() => setRefreshConversations(Date.now())}
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-gray-50 dark:bg-gray-800">
-            <div className="text-center">
-              <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent dark:border-blue-400"></div>
-              <p className="mt-4 text-gray-600 dark:text-gray-300">
-                Conversation deleted
-              </p>
-              <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
-                Redirecting to new chat...
-              </p>
-            </div>
-          </div>
+          <Loading
+            variant="circle"
+            size={48}
+            text="Conversation deleted"
+            subText="Redirecting to new chat..."
+            fullScreen={false}
+            className="bg-gray-50 dark:bg-gray-800"
+          />
         )}
       </div>
     </div>
