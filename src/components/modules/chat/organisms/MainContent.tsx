@@ -39,20 +39,20 @@ export function MainContent({
   }
 
   return (
-    <main className="relative flex h-screen flex-col bg-gray-100">
+    <main className="relative flex h-screen flex-col bg-gray-100 dark:bg-gray-900">
       {/* Header với nút Login/Signup - chỉ hiện khi chưa đăng nhập */}
       {!isLoggedIn && (
         <div className="absolute top-0 right-0 z-10 p-6">
           <div className="flex gap-3">
             <button
               onClick={handleLogin}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
             >
               Login
             </button>
             <button
               onClick={handleSignup}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
             >
               Sign Up
             </button>
@@ -65,8 +65,10 @@ export function MainContent({
         {/* Content area */}
         <div className="flex flex-1 flex-col items-center justify-center">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-zinc-800">CHAT A.I+</h1>
-            <p className="mt-2 text-4xl font-semibold text-zinc-700">
+            <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">
+              CHAT A.I+
+            </h1>
+            <p className="mt-2 text-4xl font-semibold text-zinc-700 dark:text-zinc-300">
               Good day! How may I assist you today?
             </p>
           </div>
@@ -146,7 +148,7 @@ export function MainContent({
         </div>
 
         {/* Input bar - cùng container */}
-        <div className="mx-auto mt-8 w-full max-w-3xl bg-gray-100">
+        <div className="mx-auto mt-8 w-full max-w-3xl bg-gray-100 dark:bg-gray-900">
           <div className="relative">
             <input
               type="text"
@@ -154,12 +156,12 @@ export function MainContent({
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full rounded-full border bg-white py-4 pr-16 pl-6 text-zinc-800 shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full rounded-full border border-gray-300 bg-white py-4 pr-16 pl-6 text-zinc-800 shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-zinc-100 dark:placeholder:text-gray-400"
             />
             <button
               onClick={handleSendMessage}
               disabled={!inputValue.trim()}
-              className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-blue-600 p-3 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+              className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-blue-600 p-3 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-500 dark:hover:bg-blue-600 dark:disabled:bg-gray-600"
             >
               <Send className="h-5 w-5" />
             </button>

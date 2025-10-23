@@ -112,7 +112,7 @@ export function Sidebar({
 
   return (
     <aside
-      className={`flex flex-col border bg-white shadow-lg transition-all duration-300 ${
+      className={`flex flex-col border border-gray-200 bg-white shadow-lg transition-all duration-300 dark:border-gray-700 dark:bg-gray-800 ${
         collapsed
           ? 'h-full w-16 items-center p-2'
           : 'my-3 ml-3 h-[calc(100vh-24px)] w-72 rounded-2xl p-4'
@@ -123,21 +123,21 @@ export function Sidebar({
           <button
             onClick={onToggle}
             title="Open sidebar"
-            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <PanelLeft className="h-5 w-5 text-gray-700" />
+            <PanelLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
           </button>
           <button title="New chat" onClick={handleNewChat}>
-            <Pen className="h-6 w-6 text-gray-700" />
+            <Pen className="h-6 w-6 text-gray-700 dark:text-gray-300" />
           </button>
           <button title="Search">
-            <Search className="h-6 w-6 text-gray-700" />
+            <Search className="h-6 w-6 text-gray-700 dark:text-gray-300" />
           </button>
           <button title="Settings">
-            <Settings className="h-6 w-6 text-gray-700" />
+            <Settings className="h-6 w-6 text-gray-700 dark:text-gray-300" />
           </button>
           <div className="mt-auto mb-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white dark:bg-blue-600">
               HN
             </div>
           </div>
@@ -145,13 +145,15 @@ export function Sidebar({
       ) : (
         <>
           <div className="mb-4 flex items-center justify-between">
-            <h1 className="text-lg font-bold text-zinc-800">CHAT A.I+</h1>
+            <h1 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">
+              CHAT A.I+
+            </h1>
             <button
               onClick={onToggle}
               title="Close sidebar"
-              className="rounded-lg p-2 transition-colors hover:bg-gray-100"
+              className="rounded-lg p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <PanelLeft className="h-5 w-5 text-gray-700" />
+              <PanelLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
             </button>
           </div>
           <SidebarHeader
@@ -161,7 +163,7 @@ export function Sidebar({
           <div className="scrollbar-hide mt-6 flex-1 overflow-y-auto pr-2">
             {loading ? (
               <div className="flex items-center justify-center py-8">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent dark:border-blue-400"></div>
               </div>
             ) : (
               <>

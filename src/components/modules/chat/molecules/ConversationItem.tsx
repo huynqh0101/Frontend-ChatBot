@@ -63,8 +63,8 @@ export default function ConversationItem({
         onClick={handleClick}
         className={`flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 transition-colors duration-200 ${
           isSelected
-            ? 'bg-indigo-100 text-indigo-800'
-            : 'text-zinc-600 hover:bg-indigo-50 hover:text-indigo-700'
+            ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200'
+            : 'text-zinc-600 hover:bg-indigo-50 hover:text-indigo-700 dark:text-zinc-300 dark:hover:bg-indigo-900/50 dark:hover:text-indigo-300'
         }`}
       >
         <div className="flex min-w-0 items-center gap-3">
@@ -89,7 +89,7 @@ export default function ConversationItem({
                 }
               }}
               onClick={(e) => e.stopPropagation()}
-              className="truncate px-1 py-0.5 text-sm font-medium outline-none focus:outline-none"
+              className="truncate bg-transparent px-1 py-0.5 text-sm font-medium outline-none focus:outline-none dark:text-zinc-100"
               style={{ maxWidth: 160 }}
             />
           ) : (
@@ -100,7 +100,7 @@ export default function ConversationItem({
         <div className="relative z-10 flex flex-shrink-0 items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
           {editing ? (
             <button
-              className="rounded p-1 text-zinc-500 hover:text-green-600"
+              className="rounded p-1 text-zinc-500 hover:text-green-600 dark:text-zinc-400 dark:hover:text-green-400"
               onMouseDown={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
@@ -111,14 +111,14 @@ export default function ConversationItem({
             </button>
           ) : (
             <button
-              className="rounded p-1 text-zinc-500 hover:text-zinc-900"
+              className="rounded p-1 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
               onClick={handleEdit}
             >
               <Pencil className="h-4 w-4" />
             </button>
           )}
           <button
-            className="rounded p-1 text-zinc-500 hover:text-red-600"
+            className="rounded p-1 text-zinc-500 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400"
             onClick={handleDelete}
           >
             <Trash2 className="h-4 w-4" />

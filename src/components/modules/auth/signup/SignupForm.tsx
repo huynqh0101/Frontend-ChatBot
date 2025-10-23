@@ -59,22 +59,22 @@ export function SignupForm() {
 
   return (
     <div className="flex min-h-screen w-full flex-row justify-center bg-white dark:bg-gray-900">
-      <div className="relative my-8 flex w-full max-w-[1000px] overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800">
+      <div className="relative my-8 flex w-full max-w-[850px] overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800">
         {/* Form section */}
         <div className="flex flex-1 items-center justify-center px-6 py-8">
-          <Card className="w-full max-w-[350px] border-none bg-transparent shadow-none">
+          <Card className="w-full max-w-[320px] border-none bg-transparent shadow-none">
             <div className="p-0">
               {/* Form header */}
-              <div className="mb-8">
-                <h1 className="font-['Poppins'] text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
+              <div className="mb-6">
+                <h1 className="font-['Poppins'] text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
                   Get Started Now
                 </h1>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-300">
                   Create your account and start your journey
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name field */}
                 <div className="space-y-1.5">
                   <label className="font-serif text-sm font-semibold text-gray-700 dark:text-gray-200">
@@ -88,7 +88,7 @@ export function SignupForm() {
                       name="name"
                       placeholder="Enter your name"
                       required
-                      className="h-10 rounded-lg border-gray-200 bg-white pl-10 font-serif text-sm text-gray-900 placeholder:text-gray-500 focus:border-[#3a5b22] focus:ring-[#3a5b22] dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
+                      className="h-9 rounded-lg border-gray-200 bg-white pl-10 font-serif text-sm text-gray-900 placeholder:text-gray-500 focus:border-[#3a5b22] focus:ring-[#3a5b22] dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
                     />
                   </div>
                 </div>
@@ -107,7 +107,7 @@ export function SignupForm() {
                       name="email"
                       placeholder="Enter your email"
                       required
-                      className="h-10 rounded-lg border-gray-200 bg-white pl-10 font-serif text-sm text-gray-900 placeholder:text-gray-500 focus:border-[#3a5b22] focus:ring-[#3a5b22] dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
+                      className="h-9 rounded-lg border-gray-200 bg-white pl-10 font-serif text-sm text-gray-900 placeholder:text-gray-500 focus:border-[#3a5b22] focus:ring-[#3a5b22] dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
                     />
                   </div>
                 </div>
@@ -125,7 +125,7 @@ export function SignupForm() {
                       type={showPassword ? 'text' : 'password'}
                       name="password"
                       placeholder="Enter your password"
-                      className="h-10 rounded-lg border-gray-200 bg-white pr-10 pl-10 font-serif text-sm text-gray-900 placeholder:text-gray-500 focus:border-[#3a5b22] focus:ring-[#3a5b22] dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
+                      className="h-9 rounded-lg border-gray-200 bg-white pr-10 pl-10 font-serif text-sm text-gray-900 placeholder:text-gray-500 focus:border-[#3a5b22] focus:ring-[#3a5b22] dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
                       required
                     />
                     <button
@@ -155,7 +155,7 @@ export function SignupForm() {
                       type={showConfirmPassword ? 'text' : 'password'}
                       name="confirm-password"
                       placeholder="Confirm your password"
-                      className="h-10 rounded-lg border-gray-200 bg-white pr-10 pl-10 font-serif text-sm text-gray-900 placeholder:text-gray-500 focus:border-[#3a5b22] focus:ring-[#3a5b22] dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
+                      className="h-9 rounded-lg border-gray-200 bg-white pr-10 pl-10 font-serif text-sm text-gray-900 placeholder:text-gray-500 focus:border-[#3a5b22] focus:ring-[#3a5b22] dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
                       required
                     />
                     <button
@@ -206,7 +206,7 @@ export function SignupForm() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="h-11 w-full rounded-lg bg-[#3a5b22] font-['Poppins'] text-sm font-semibold tracking-wide text-white hover:bg-[#2e4a1b] dark:bg-[#4a6b32] dark:hover:bg-[#3a5b22]"
+                  className="h-10 w-full rounded-lg bg-[#3a5b22] font-['Poppins'] text-sm font-semibold tracking-wide text-white hover:bg-[#2e4a1b] dark:bg-[#4a6b32] dark:hover:bg-[#3a5b22]"
                 >
                   {loading ? (
                     <>
@@ -219,50 +219,50 @@ export function SignupForm() {
                 </Button>
 
                 {/* Separator */}
-                <div className="relative flex items-center py-4">
+                <div className="relative flex items-center py-3">
                   <Separator className="w-full dark:bg-gray-600" />
-                  <div className="absolute left-1/2 -translate-x-1/2 transform bg-white px-4 dark:bg-gray-800">
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  <div className="absolute left-1/2 -translate-x-1/2 transform bg-white px-3 dark:bg-gray-800">
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                       Or continue with
                     </span>
                   </div>
                 </div>
 
                 {/* Social login buttons */}
-                <div className="flex gap-4">
+                <div className="flex gap-3">
                   <Button
                     type="button"
                     variant="outline"
-                    className="h-auto flex-1 rounded-lg border-gray-300 bg-white px-5 py-1 font-serif text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                    className="h-auto flex-1 rounded-lg border-gray-300 bg-white px-4 py-1.5 font-serif text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                   >
                     <Image
-                      className="mr-2.5 h-6 w-6"
+                      className="mr-2 h-5 w-5"
                       alt="Google"
                       src="/google.png"
-                      width={24}
-                      height={24}
+                      width={20}
+                      height={20}
                     />
-                    Sign up with Google
+                    Google
                   </Button>
 
                   <Button
                     type="button"
                     variant="outline"
-                    className="h-auto flex-1 rounded-lg border-gray-300 bg-white px-5 py-1 font-serif text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                    className="h-auto flex-1 rounded-lg border-gray-300 bg-white px-4 py-1.5 font-serif text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                   >
                     <Image
-                      className="mr-2.5 h-6 w-6"
+                      className="mr-2 h-5 w-5"
                       alt="Apple"
                       src="/icons8-apple-logo-1.svg"
-                      width={24}
-                      height={24}
+                      width={20}
+                      height={20}
                     />
-                    Sign up with Apple
+                    Apple
                   </Button>
                 </div>
 
                 {/* Sign in link */}
-                <div className="mt-6 text-center">
+                <div className="mt-4 text-center">
                   <p className="text-sm text-gray-600 dark:text-gray-300">
                     Have an account?{' '}
                     <Link
@@ -284,8 +284,8 @@ export function SignupForm() {
             className="h-full w-full object-cover"
             alt="Signup background"
             src="/chris-lee-70l1tdai6rm-unsplash-1.png"
-            width={500}
-            height={800}
+            width={425}
+            height={700}
             priority
           />
         </div>

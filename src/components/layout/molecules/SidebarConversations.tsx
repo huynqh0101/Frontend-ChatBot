@@ -76,8 +76,8 @@ export default function SidebarConversations({
     <div className="space-y-2">
       {/* Header with Clear All button */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-700">
-          Recent Conversations ({conversations.length})
+        <h3 className="text-xs font-medium text-gray-700 dark:text-zinc-400">
+          RECENT CONVERSATIONS
         </h3>
         <button
           onClick={handleClearAll}

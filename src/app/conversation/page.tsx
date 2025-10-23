@@ -41,10 +41,12 @@ export default function ConversationPage() {
 
   if (authLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-white">
+      <div className="flex h-screen items-center justify-center bg-white dark:bg-gray-900">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="mt-2 text-gray-600">Checking authentication...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent dark:border-blue-400"></div>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
+            Checking authentication...
+          </p>
         </div>
       </div>
     )
@@ -52,17 +54,19 @@ export default function ConversationPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="flex h-screen items-center justify-center bg-white">
+      <div className="flex h-screen items-center justify-center bg-white dark:bg-gray-900">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="mt-2 text-gray-600">Redirecting...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent dark:border-blue-400"></div>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
+            Redirecting...
+          </p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="relative flex h-screen bg-gray-100">
+    <div className="relative flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar
         onSelectConversation={handleSelectConversation}
         selectedConversationId={null}
