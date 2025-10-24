@@ -21,6 +21,16 @@ interface SidebarProps {
   onConversationDeleted?: (conversationId: string) => void
 }
 
+function getInitials(name: string) {
+  if (!name) return 'AN'
+  const words = name.trim().split(' ')
+  const initials = words
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+  return initials.slice(0, 2)
+}
+
 export function Sidebar({
   onSelectConversation,
   selectedConversationId,
@@ -49,6 +59,20 @@ export function Sidebar({
       setLoading(false)
     }
   }
+  const [userName, setUserName] = useState('')
+
+  useEffect(() => {
+    const userData =
+      localStorage.getItem('user') || sessionStorage.getItem('user')
+    if (userData) {
+      try {
+        const user = JSON.parse(userData)
+        setUserName(user.name || '')
+      } catch {
+        setUserName('')
+      }
+    }
+  }, [])
 
   useEffect(() => {
     loadConversations()
@@ -137,8 +161,8 @@ export function Sidebar({
             <Settings className="h-6 w-6 text-gray-700 dark:text-gray-300" />
           </button>
           <div className="mt-auto mb-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white dark:bg-blue-600">
-              HN
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#3B82F6] font-bold text-white dark:bg-blue-600">
+              {getInitials(userName)}
             </div>
           </div>
         </div>

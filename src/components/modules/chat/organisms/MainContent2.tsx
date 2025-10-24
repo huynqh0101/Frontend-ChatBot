@@ -168,33 +168,29 @@ export function MainContent2({
       </div>
 
       {/* Input Area */}
-      <div className="bg-gray-100 dark:bg-gray-900">
-        <div className="mx-auto max-w-4xl">
-          <div className="relative flex items-end gap-3">
-            <div className="relative flex-1">
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="Type your message..."
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={isTyping}
-                className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 pr-12 text-gray-800 shadow-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-400 dark:focus:border-blue-400 dark:focus:ring-blue-800 dark:disabled:bg-gray-700"
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isTyping}
-                className="absolute top-1/2 right-2 -translate-y-1/2 rounded-xl bg-blue-600 p-2 text-white transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-500 dark:hover:bg-blue-600 dark:disabled:bg-gray-600"
-              >
-                <Send className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-          <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
-            AI can make mistakes. Consider checking important information.
-          </p>
+      <div className="mx-auto mt-8 w-full max-w-3xl bg-gray-100 dark:bg-gray-900">
+        <div className="relative">
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="What's in your mind?..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isTyping}
+            className="w-full rounded-full border border-gray-300 bg-white py-4 pr-16 pl-6 text-zinc-800 shadow-lg focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-zinc-100 dark:placeholder:text-gray-400"
+          />
+          <button
+            onClick={handleSendMessage}
+            disabled={!inputValue.trim() || isTyping}
+            className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-blue-600 p-3 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-500 dark:hover:bg-blue-600 dark:disabled:bg-gray-600"
+          >
+            <Send className="h-5 w-5" />
+          </button>
         </div>
+        <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
+          AI can make mistakes. Consider checking important information.
+        </p>
       </div>
     </main>
   )

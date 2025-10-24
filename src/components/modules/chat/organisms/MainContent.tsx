@@ -3,6 +3,8 @@ import { useState } from 'react'
 import InfoCard from '../molecules/InfoCard'
 import PromptCard from '../molecules/PromptCard'
 
+import { MainHeader } from '../molecules/MainHeader'
+
 interface MainContentProps {
   onStartNewChat: (firstMessage: string) => void
   isLoggedIn?: boolean
@@ -28,37 +30,9 @@ export function MainContent({
     }
   }
 
-  const handleLogin = () => {
-    // Chuyển đến trang login
-    window.location.href = '/login'
-  }
-
-  const handleSignup = () => {
-    // Chuyển đến trang signup
-    window.location.href = '/signup'
-  }
-
   return (
     <main className="relative flex h-screen flex-col bg-gray-100 dark:bg-gray-900">
-      {/* Header với nút Login/Signup - chỉ hiện khi chưa đăng nhập */}
-      {!isLoggedIn && (
-        <div className="absolute top-0 right-0 z-10 p-6">
-          <div className="flex gap-3">
-            <button
-              onClick={handleLogin}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-            >
-              Login
-            </button>
-            <button
-              onClick={handleSignup}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-            >
-              Sign Up
-            </button>
-          </div>
-        </div>
-      )}
+      {!isLoggedIn && <MainHeader />}
 
       {/* Main container chứa cả content và input */}
       <div className="flex flex-1 flex-col justify-between p-6 md:p-10">
@@ -156,7 +130,7 @@ export function MainContent({
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full rounded-full border border-gray-300 bg-white py-4 pr-16 pl-6 text-zinc-800 shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-zinc-100 dark:placeholder:text-gray-400"
+              className="w-full rounded-full border border-gray-300 bg-white py-4 pr-16 pl-6 text-zinc-800 shadow-lg focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-zinc-100 dark:placeholder:text-gray-400"
             />
             <button
               onClick={handleSendMessage}

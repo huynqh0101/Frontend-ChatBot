@@ -5,6 +5,7 @@ import { sendMessage, sendAnonymousMessage } from '@/services/chatService'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/core/useAuth'
 import { ApiMessage } from '@/contents/interfaces'
+import { Loading } from '@/components/base/loading/Loading' // Thêm dòng này
 
 export default function HomePage() {
   const { isLoggedIn, isLoading } = useAuth()
@@ -104,26 +105,12 @@ export default function HomePage() {
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-white">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="mt-2 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
+    return <Loading variant="circle" size={48} text="Loading..." />
   }
 
   // Redirecting state
   if (isLoggedIn) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-white">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="mt-2 text-gray-600">Redirecting...</p>
-        </div>
-      </div>
-    )
+    return <Loading variant="circle" size={48} text="Redirecting..." />
   }
 
   // Main content for non-logged in users
